@@ -1,0 +1,3 @@
+exportPattern("^[[:alpha:]]+")
+import("XML")
+importFrom("utils", "write.table")
