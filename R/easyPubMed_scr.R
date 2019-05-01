@@ -104,9 +104,11 @@ function(pubmedArticle,
                                     several.ok = FALSE )}, 
                         error = function(e) {"january"})
       month <- month_dict$val[month_dict$id == month]
+    } else {
+      month <- NA
     }
     
-    if (is.na(date_vec[[3]])){
+    if (is.na(date_vec[[3]]) && !is.na(month) && !is.na(date_vec[[1]]) ){
       date_vec[[3]]  <- 1
     }
     
