@@ -1618,7 +1618,7 @@ fetch_pubmed_data_by_PMID <- function(pmids,
                                       encoding = "UTF-8", 
                                       verbose = TRUE) {
   
-  if (file.exists(pmids)) {
+  if (length(pmids) == 1 && file.exists(pmids)) {
     pmids <- suppressMessages(
       suppressWarnings(
         readLines(con = pmids)))
