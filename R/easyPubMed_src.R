@@ -252,7 +252,7 @@ article_to_df <- function (pubmedArticle, autofill = FALSE,
                                   format = "char")
         tmp.firstnm <- custom_grep(xml_data = al, tag = "ForeName", 
                                    format = "char")
-        email.PAT <- "([[:alnum:]]|\\.|\\-\\_){3,200}@([[:alnum:]]|\\.|\\-\\_){3,200}(\\.)([[:alnum:]]){2,6}"
+        email.PAT <- "([[:alnum:]]|\\.|\\-|\\_){3,200}@([[:alnum:]]|\\.|\\-|\\_){3,200}(\\.)([[:alnum:]]){2,6}"
         tmp.email <- regexpr(email.PAT, al)
         if (tmp.email > 0) {
           tmp.email <- substr(al, tmp.email, tmp.email + 
