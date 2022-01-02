@@ -818,6 +818,16 @@ fetch_pubmed_data <-
     } else {
       myWebEnv <- myIDlist$WebEnv
       myKey <- myIDlist$QueryKey
+      
+      # ~~~ Add internal check ~~~
+      if (is.na(as.numeric(myIDlist$Count))){
+        return(NULL)
+      } else if (as.numeric(myIDlist$Count) < 1) {
+        message('There are 0 results to fetch!')
+        return(NULL)
+      }  
+      # ~~~ end ~~~
+      
       myCount <- as.numeric(as.character(myIDlist$Count))
       myRetstart = as.integer(retstart)
       if (myRetstart < 0) {
