@@ -1,8 +1,8 @@
 Package: easyPubMed
 Type: Package
 Title: Search and Retrieve Scientific Publication Records from PubMed
-Version: 2.21
-Date: 2020-07-12
+Version: 2.22
+Date: 2022-02-02
 Author: Damiano Fantini
 Maintainer: Damiano Fantini <damiano.fantini@gmail.com>
 Description: Query NCBI Entrez and retrieve PubMed records in XML or text format. Process PubMed records by extracting and aggregating data from selected fields. A large number of records can be easily downloaded via this simple-to-use interface to the NCBI PubMed API.
