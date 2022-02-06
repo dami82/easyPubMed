@@ -365,10 +365,42 @@ articles_to_list <-
     
     # Define a nested (core) function handling standardized input
     # This assumes a string as a input
-    easyPM_exec_art_to_lst <- function(pm_dataa, simply = TRUE) 
+    easyPM_exec_art_to_lst <- function(pm_dataa, simply = TRUE, 
+                                       max_pmrec_nchar = 500000) 
     {
       # it's a string to process
-      pm_datab <- strsplit(pm_dataa, "<PubmedArticle(>|[[:space:]]+?.*>)")[[1]][-1]
+      #pm_datab <- strsplit(pm_dataa, "<PubmedArticle(>|[[:space:]]+?.*>)")[[1]][-1]
+      
+      # New chunk
+      pm_datab <- tryCatch({
+        strsplit(pm_dataa, "<PubmedArticle(>|[[:space:]]+?.*>)")[[1]][-1]}, 
+        error = function(e) { NULL })
+  
+      if (is.null(pm_datab)) {
+
+        salv_splts <- tryCatch({
+          c(1, 
+            as.numeric(gregexpr(pattern = "</PubmedArticle>", myXML)[[1]]))}, 
+          error = function(e) {NULL})
+    
+        if (salv_splts[2] > salv_splts[1]) {
+          CLCT <- list()
+          for (ii in 2:length(salv_splts)) {
+            pos_1 <- salv_splts[(ii - 1)]
+            pos_2 <- salv_splts[(ii)]
+            pos_diff <- (pos_2 - pos_1)
+            #message(pos_diff)
+        
+            if (pos_diff <= max_pmrec_nchar){
+              tmp <- substr(myXML, start = pos_1+16, stop = pos_2+15)
+              CLCT[[length(CLCT) + 1]] <- tmp
+            }
+          }
+          pm_datab <- do.call(c, CLCT)
+        }
+      }
+      # end of new chunk
+      
       pm_datab <- sapply(pm_datab, function(x) {
         #trim extra stuff at the end of the record
         if (!grepl("</PubmedArticle>$", x))
