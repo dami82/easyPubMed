@@ -752,7 +752,7 @@ fetch_all_pubmed_ids <-
     
     collect_ids <- list()
     for (i in 1:length(idXML)) {
-      if (grepl("^(\\t){0,1}<Id>", idXML[i])) {
+      if (grepl("^(\\\\t){0,1}(\\t){0,1}<Id>", idXML[i])) {
         xx <- custom_grep(idXML[i], tag = "Id", format = "char")
         collect_ids[[length(collect_ids) + 1]] <- as.character(xx[1])
       }
