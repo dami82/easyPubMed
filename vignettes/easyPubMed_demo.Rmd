@@ -20,9 +20,9 @@ vignette: >
 
 ```{r include=FALSE, echo=FALSE, results='hide', eval=TRUE}
 # Declarations
-curr_epm_ver <- '3.1'
-stab_epm_ver <- '2.13'
-devl_epm_ver <- '3.1'
+curr_epm_ver <- '3.01'
+stab_epm_ver <- '2.22'
+devl_epm_ver <- '3.01'
 
 # pre-load libs and data
 library(easyPubMed)
@@ -158,10 +158,10 @@ The typical `easyPubMed` pipeline is a three-step process.
 - Submit a **PubMed query** via `epm_query()`. *This function submits a query to Entrez/PubMed, reads the server response, and depending on the anticipated number of results it may automatically split the query into multiple sub-queries (whenever needed and/or possible). The query string should be built using standard PubMed syntax, i.e. the user can use the same tags/keywords (e.g., '[AU]' or '[PDAT]') as the PubMed web portal. This function returns an `easyPubMed` object.*  
 
 
-- **Download PubMed records** via `epm_fetch()`. *This function reads the information included in an `easyPubMed` object and downloads records from the Entrez/PubMed server. Records can be retrieved in XML (default) or Medline formats. By default, raw records are stored in the 'raw' slot of the `easyPubMed` object, and can be accessed via the `getEPMRaw()` method. Alternatively, records can be written to local files.* 
+- **Download PubMed records** via `epm_fetch()`. *This function reads the information included in an `easyPubMed` object and downloads records from the Entrez/PubMed server. Records can be retrieved in XML (default) or Medline formats. By default, raw records are stored in the 'raw' slot of the `easyPubMed` object, and can be accessed via the `get_epm_raw()` function. Alternatively, records can be written to local files.* 
 
 
-- [Optional] **Extract Information** from raw XML records via `epm_parse()`. *This function is used to identify XML fields of interest in each record, extract the corresponding information, and cast them into a structured data.frame. Results are stored in the 'data' slot of the `easyPubMed` object, and can be accessed via the `getEPMData()` method.*
+- [Optional] **Extract Information** from raw XML records via `epm_parse()`. *This function is used to identify XML fields of interest in each record, extract the corresponding information, and cast them into a structured data.frame. Results are stored in the 'data' slot of the `easyPubMed` object, and can be accessed via the `get_epm_data()` function.*
 
 
 -----
@@ -202,11 +202,11 @@ epm
 
 **Get Meta data**
 
-Meta data are attached to each `easyPubMed` object and provide information about the record query job (*e.g.*, number of expected records; date when the query was performed) as well as type/format of the downloaded data (*e.g.*, format and encoding of the raw data).  A unique identifier (UID) is also included to track different objects/query jobs. Meta data can be requested from an `easyPubMed` object via the `getEPMMeta` method, which returns a list. 
+Meta data are attached to each `easyPubMed` object and provide information about the record query job (*e.g.*, number of expected records; date when the query was performed) as well as type/format of the downloaded data (*e.g.*, format and encoding of the raw data).  A unique identifier (UID) is also included to track different objects/query jobs. Meta data can be requested from an `easyPubMed` object via the `get_epm_meta()` function, which returns a list. 
 
 
 ```{r include=TRUE, results='markup', eval=TRUE, echo=TRUE}
-job_meta <- getEPMMeta(x = epm)
+job_meta <- get_epm_meta(x = epm)
 head(job_meta)
 ```
 
@@ -218,11 +218,11 @@ head(job_meta)
 
 **Get Raw Records**
 
-Raw PubMed records can be obtained from an `easyPubMed` (after `epm_fetch()` has been completed) via the `getEPMRaw()` method, which returns a named list. Each element includes one PubMed record. The name of each element corresponds to its PubMed record identifier (PMID). 
+Raw PubMed records can be obtained from an `easyPubMed` (after `epm_fetch()` has been completed) via the `get_epm_raw()` function, which returns a named list. Each element includes one PubMed record. The name of each element corresponds to its PubMed record identifier (PMID). 
 
 
 ```{r results='markup'}
-raw_records <- getEPMRaw(epm)
+raw_records <- get_epm_raw(epm)
 
 # elements are named after the corresponding PMIDs
 head(names(raw_records))
@@ -240,11 +240,11 @@ cat(substr(first_record, 1, 1200))
 **Get Processed Data**
 
 
-Processed data can be obtained from an `easyPubMed` (after `epm_parse()` has been executed) via the `getEPMData()` method. Processed data are returned as a data.frame. By default, each row corresponds to a PubMed record. This default behavior can be modified by tuning the `compact_output` and `max_authors` arguments (see section below). The columns/fields extracted include record identifiers, journal name, publication date, title, abstract, MeSH codes, author names and affiliations. 
+Processed data can be obtained from an `easyPubMed` (after `epm_parse()` has been executed) via the `get_epm_data()` function Processed data are returned as a *data.frame*. By default, each row corresponds to a PubMed record. This default behavior can be modified by tuning the `compact_output` and `max_authors` arguments (see section below). The columns/fields extracted include record identifiers, journal name, publication date, title, abstract, MeSH codes, author names and affiliations. 
 
 
 ```{r results='markup'}
-proc_data <- getEPMData(epm)
+proc_data <- get_epm_data(epm)
 
 # show an excerpt (first 6 records, selected columns)
 slctd_fields <- c('pmid', 'doi', 'jabbrv', 'year', 'month', 'day')
@@ -302,13 +302,13 @@ A comprehensive list of the fields that are extracted from raw XML records and r
 **Get Record Identifiers (PMIDs)**
 
 
-The identifiers (PMIDs) of records included in an `easyPubMed` object (after `epm_fetch()` has been executed) can be obtained via the `getEPMUilist()` method, which returns a character vector. PMIDs are automatically detected and extracted from all downloaded records, independently of the raw record format.
+The identifiers (PMIDs) of records included in an `easyPubMed` object (after `epm_fetch()` has been executed) can be obtained via the `get_epm_uilist()` function, which returns a character vector. PMIDs are automatically detected and extracted from all downloaded records, independently of the raw record format.
 
 
 
 ```{r}
 # Get PMIDs
-all_pmids <- getEPMUilist(epm)
+all_pmids <- get_epm_uilist(epm)
 
 # Show excerpt
 head(all_pmids)
@@ -415,7 +415,7 @@ epm_xmpl_03 <- epm_query(my_query)
 epm_xmpl_03 <- epm_fetch(epm_xmpl_03, format = 'medline')
 
 # Get records
-xmpl_03_raw <- getEPMRaw(epm_xmpl_03)
+xmpl_03_raw <- get_epm_raw(epm_xmpl_03)
 
 # Elements are named after the corresponding PMIDs
 head(names(xmpl_03_raw))
@@ -423,7 +423,7 @@ head(names(xmpl_03_raw))
 
 
 ```{r results='markup', message=FALSE, warning=FALSE, eval=TRUE, include=TRUE, echo=FALSE}
-xmpl_03_raw <- getEPMRaw(epm_xmpl_03)
+xmpl_03_raw <- get_epm_raw(epm_xmpl_03)
 head(names(xmpl_03_raw))
 ```
 
@@ -442,7 +442,7 @@ cat(head(first_record, n=20), sep = '\n')
 
 ### Queries Returning Large Numbers of Records
 
-In `easyPubMed` (version 3.1 and later) there are no dedicated functions for downloading large numbers of records. Large query jobs are still carried out via the  `epm_query()` and `epm_fetch()` functions, which will attempt to split a single query into a list of manageable sub-jobs. An example is shown below. Briefly, we performed a query that returned n=20,825 records. The job was automatically split in n=4 sub-jobs, records were downloaded and parsed. The whole operation took about 3h 28m using a 2-vCPUs, 4Gb-memory machine running on Ubuntu 20.04 (*i.e.*, about 0.6s per record).	  
+In `easyPubMed` (version `r curr_epm_ver` and later) there are no dedicated functions for downloading large numbers of records. Large query jobs are still carried out via the  `epm_query()` and `epm_fetch()` functions, which will attempt to split a single query into a list of manageable sub-jobs. An example is shown below. Briefly, we performed a query that returned n=20,825 records. The job was automatically split in n=4 sub-jobs, records were downloaded and parsed. The whole operation took about 3h 28m using a 2-vCPUs, 4Gb-memory machine running on Ubuntu 20.04 (*i.e.*, about 0.6s per record).	  
 
 
 ```{r eval=FALSE, echo=TRUE, include=TRUE}
@@ -474,7 +474,7 @@ epm_xmpl_04
 
 ### Save Raw Records Locally
 
-Unlike previous versions of `easyPubMed`, there are no dedicated functions to write PubMed records to a local disk. Starting from `easyPubMed` version 3.1, this operation is performed by tuning the arguments of the `epm_fetch()` function and by setting the `write_to_file` to TRUE. 
+Unlike previous versions of `easyPubMed`, there are no dedicated functions to write PubMed records to a local disk. Starting from `easyPubMed` version `r curr_epm_ver`, this operation is performed by tuning the arguments of the `epm_fetch()` function and by setting the `write_to_file` to TRUE. 
 
 
 **Write Files to the Local Disc.**
@@ -555,9 +555,9 @@ As we outlined above, information can be extracted from raw records ("xml" forma
 
 **Compact vs. extended output**.
 
-A new feature of `easyPubMed` (ver. 3.1 or later) is the capacity of tuning the author information extraction process. The `compact_output` and `max_authors` arguments can be adjusted to get the desired behavior. 
+A new feature of `easyPubMed` (ver. `r curr_epm_ver` or later) is the capacity of tuning the author information extraction process. The `compact_output` and `max_authors` arguments can be adjusted to get the desired behavior. 
 
-- `compact_output`: logical (defaults to `TRUE`). Author names are returned in a compact format (*i.e.*, author names are collapsed together) when this argument is set to `TRUE`, and each row in the final data.frame corresponds to a PubMed record. If `FALSE`, each row corresponds to a single author of the publication and the record-specific data are recycled for all included authors (legacy approach, this is similar to the typical output of the corresponding function in `easyPubMed` ver. *2.30* and earlier). When `compact_output` is set to `FALSE`, the processed data row number is typically bigger than the number or raw records that were retrieved. The behavior managed via the `compact_output` argument is a new feature of `easyPubMed` version *3.1* or later. 
+- `compact_output`: logical (defaults to `TRUE`). Author names are returned in a compact format (*i.e.*, author names are collapsed together) when this argument is set to `TRUE`, and each row in the final data.frame corresponds to a PubMed record. If `FALSE`, each row corresponds to a single author of the publication and the record-specific data are recycled for all included authors (legacy approach, this is similar to the typical output of the corresponding function in `easyPubMed` ver. *2.30* and earlier). When `compact_output` is set to `FALSE`, the processed data row number is typically bigger than the number or raw records that were retrieved. The behavior managed via the `compact_output` argument is a new feature of `easyPubMed` version *`r curr_epm_ver`* or later. 
 
 - `max_authors`: numeric, maximum number of authors to retrieve. If this is set to -1, only the last author is extracted. If this is set to 1, only the first author is returned. If this is set to 2, the first and the last authors are extracted. If this is set to any other positive number (i), up to the leading (i-1) authors are retrieved together with the last author. If this is set to a number larger than the number of authors in a record, all authors are returned. Note that at least 1 author has to be retrieved, therefore a value of 0 is not accepted (coerced to -1).
 
@@ -567,7 +567,7 @@ A new feature of `easyPubMed` (ver. 3.1 or later) is the capacity of tuning the 
 
 **Citations**.
 
-The `epm_parse()` function can now extract citation information (if available). This feature was introduced in `easyPubMed` version *3.1*. The `max_references` and `ref_id_type` arguments can be adjusted to obtain information in the desired format. 
+The `epm_parse()` function can now extract citation information (if available). This feature was introduced in `easyPubMed` version *`r curr_epm_ver`*. The `max_references` and `ref_id_type` arguments can be adjusted to obtain information in the desired format. 
 
 - `max_references`: numeric, maximum number of references to return (from each PubMed record). 
 
@@ -594,7 +594,7 @@ epm_xmpl_07 <- epm_parse(epm_xmpl_07,
                          max_references = 5, ref_id_type = 'pmid')
 
 # Request parsed data
-epm_data <- getEPMData(epm_xmpl_07)
+epm_data <- get_epm_data(epm_xmpl_07)
 
 # Columns of interest
 cols_of_int <- c('pmid',  'doi', 'authors', 'jabbrv', 'year', 'references')
@@ -604,7 +604,7 @@ head(epm_data[, cols_of_int])
 ```
 
 ```{r eval=TRUE, echo=FALSE, include=TRUE, results='markup'}
-epm_data <- getEPMData(epm_xmpl_07)
+epm_data <- get_epm_data(epm_xmpl_07)
 
 # Columns of interest
 cols_of_int <- c('pmid',  'doi', 'authors', 'jabbrv', 'year', 'references')
@@ -645,7 +645,7 @@ head(epm_data[, cols_of_int])
 
   + `get_pubmed_ids()` -> `epm_query()`
 
-  + `table_articles_byAuth()` -> `epm_parse()` and then `getEPMData()` 
+  + `table_articles_byAuth()` -> `epm_parse()` and then `get_epm_data()` 
 
   + `trim_address()` -> *discontinued*
 
@@ -668,7 +668,7 @@ head(epm_data[, cols_of_int])
 
 - **Dev version** of `easyPubMed` on **GitHub** [Website](https://github.com/dami82/easyPubMed)
 
-- Additional Resources and Tutorials will be made available in early 2024.
+- Additional Resources and Tutorials are made available via the [official website](https://www.data-pulse.com/dev_site/easypubmed/).
 
 
 

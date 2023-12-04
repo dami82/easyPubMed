@@ -1,5 +1,5 @@
 
-#  easyPubMed, ver 3.0.1
+#  easyPubMed, ver 3.03
 #  Retrieve and Process Scientific Publication Records from Pubmed
 
 #  Copyright (C) 2023, Damiano Fantini
@@ -28,7 +28,7 @@
 ## ----------------
 
 
-#' Custom XML Tag Matching
+#' Custom XML Tag Matching.
 #'
 #' Extract text form a string containing XML or HTML tags. 
 #' Text included between tags of interest will be returned. 
@@ -96,7 +96,7 @@ EPM_custom_grep <- function (xml_data, tag, xclass = NULL, format = "list")
 }
 
 
-#' Submit a Query and Read the Response from the Server
+#' Submit a Query and Read the Response from the Server.
 #' 
 #' Submit a request to a server (typically, the Entrez Eutils server) and 
 #' capture the response. 
@@ -163,7 +163,7 @@ EPM_submit_q <- function(qurl) {
 }
 
 
-#' Submit a Query to the NCBI ESearch Server
+#' Submit a Query to the NCBI ESearch Server.
 #' 
 #' Submit a Query to the NCBI ESearch Server and 
 #' capture the response. 
@@ -229,7 +229,7 @@ EPM_esearch_basic_q <- function(params) {
 
 
 
-#' Parse Responses from the NCBI ESearch Server
+#' Parse Responses from the NCBI ESearch Server.
 #' 
 #' Parse Responses from the NCBI ESearch Server and 
 #' return a list of information that can be used for retrieving 
@@ -311,7 +311,7 @@ EPM_esearch_parse <- function(x) {
 }
 
 
-#' Submit a Query to the NCBI EFetch Server
+#' Submit a Query to the NCBI EFetch Server.
 #' 
 #' Submit a Query to the NCBI EFetch Server and 
 #' capture the response. 
@@ -443,7 +443,7 @@ EPM_efetch_basic_q <- function(params) {
 }
 
 
-#' Retrieve Results via an Esearch and Efetch sequence
+#' Retrieve Results via an Esearch and Efetch sequence.
 #' 
 #' Submit a Query to the NCBI ESearch Server, 
 #' capture the response and retrieve the corresponding PubMed records from 
@@ -621,7 +621,7 @@ EPM_esearch_efetch_seq <- function(query_string, api_key = NULL,
 
 
 
-#' Submit a Query and Retrieve Results from PubMed
+#' Submit a Query and Retrieve Results from PubMed.
 #' 
 #' Submit a Query to the NCBI ESearch Server, 
 #' capture the response and retrieve the corresponding PubMed records from 
@@ -733,7 +733,7 @@ EPM_retrieve_data <- function(query_string, api_key = NULL, format = 'xml',
 
 
 
-#' Split A PubMed Retrieval Job into Manageable Batches
+#' Split A PubMed Retrieval Job into Manageable Batches.
 #' 
 #' Assess the number of PubMed records expected from a user-provided query
 #' and split the job in multiple sub-queries if the number is bigger than 
@@ -972,7 +972,7 @@ EPM_job_split <- function(query_string, api_key = NULL,
 
 
 
-#' Validate Parameters of a PubMed Retrieval Job
+#' Validate Parameters of a PubMed Retrieval Job.
 #' 
 #' Check and correct (if needed) the parameters of an easyPubMed
 #' retrieval job.  
@@ -1127,7 +1127,7 @@ EPM_validate_fetch_params <- function(params) {
 
 
 
-#' Validate Parameters of a PubMed Record Parsing Job
+#' Validate Parameters of a PubMed Record Parsing Job.
 #' 
 #' Check and correct (if needed) the parameters of an easyPubMed
 #' Record Parsing job.  
@@ -1316,7 +1316,7 @@ EPM_validate_parse_params <- function(params) {
 
 
 
-#' Detect PubMed Record Identifiers
+#' Detect PubMed Record Identifiers.
 #' 
 #' Parse a list of pubmed records in XML or Medline format, 
 #' extract and return the corresponding PubMed record identifiers (PMID).
@@ -1400,7 +1400,7 @@ EPM_detect_pmid <- function(x, format = 'xml', as.list = TRUE) {
 
 
 
-#' Harmonize the Elements of a Vector by Adding Leading Zeros
+#' Harmonize the Elements of a Vector by Adding Leading Zeros.
 #' 
 #' Coerce a vector to character and then harmonize the number of characters 
 #' (nchar) of each element by adding a suitable number of leading
@@ -1458,7 +1458,7 @@ EPM_zerofill <- function(x, fillchar = '0') {
 
 
 
-#' Map Job Batches to Filenames
+#' Map Job Batches to Filenames.
 #' 
 #' Build Filenames Matching job sub-tasks. Each filename corresponds to
 #' a series of records returned by a specific job batch. The associated
@@ -1524,7 +1524,7 @@ EPM_prep_outfile <- function(job_list, path , prefix) {
 
 
 
-#' Write PubMed Records to Local Files
+#' Write PubMed Records to Local Files.
 #' 
 #' Write a list of PubMed records to a local file. If already existing, 
 #' the destination file will be over-written. Original formatting of the
@@ -1656,7 +1656,7 @@ EPM_write_to_file <- function(x, to, format, addon = NULL, verbose = FALSE) {
 
 
 
-#' Parse and Format a Pubmed Date Field
+#' Parse and Format a Pubmed Date Field.
 #' 
 #' Extract Date Information form a slice of a raw XML PubMed record. 
 #' Day, month and year are returned. Months are recoded as numeric
@@ -2072,41 +2072,30 @@ EPM_auth_parse <- function(x, max_authors = 15, autofill = TRUE) {
 #' Parse and Format References.
 #' 
 #' Extract Reference Information form a raw XML string, typically 
-#' extracted from a PubMed record. If available, 
+#' extracted from a PubMed record. Users can select the type of identifier
+#' to extract and return, as well as the maximum number of references to 
+#' be returned. 
 #'  
 #' 
-#' @param x String (character vector of length 1) including an XML Author List
-#' section from a PubMed record.
+#' @param x String (character vector of length 1) including a List
+#' of references obtained from a PubMed record.
 #' 
-#' @param max_authors Numeric, maximum number of authors to include. See 
-#' details for additional information.
+#' @param max_references Numeric (of length 1). Maximum number of references 
+#' to extract/include. This should be an integer `>=0`.
 #' 
-#' @param autofill Logical, shall non-missing address information be propagated 
-#' to fill missing address information for other authors 
-#' in the same publication. 
+#' @param id_type String (character vector of length 1). Type of identifier 
+#' to be used for references. One of the following values is expected: 
+#' `c('pmid', 'doi', 'pmc')`.
 #' 
 #' 
-#' @details 
-#' The value of the `max_authors` argument should be tuned to control which 
-#' author information to extract from the input. If 
-#' `max_authors` is set to `0`, no author information are extracted. If 
-#' `max_authors` is set to `-1` (or any negative number), only information
-#' corresponding to the last author are extracted. If `max_authors` is set to 
-#' `+1`, only the first author information are extracted. If `max_authors`
-#' is set to any other positive integer, only information for the 
-#' indicated number of authors is extracted. In this case, information for both 
-#' the first and the last author will be included.
 #' 
 #' @examples 
-#' aff <- paste0('<Author><LastName>Doe</LastName><ForeName>John</ForeName>', 
-#'               '<Affiliation>Univ A</Affiliation></Author>',
-#'               '<Author><LastName>Doe</LastName><ForeName>Jane</ForeName>', 
-#'               '<Affiliation>jane_doe@@univ_a.edu</Affiliation></Author>',
-#'               '<Author><LastName>Foo</LastName><ForeName>Bar</ForeName>', 
-#'               '<Affiliation>Univ B</Affiliation></Author>')
-#' easyPubMed:::EPM_auth_parse(aff)
-#' 
-#' 
+#' ref <- paste0('<xml><Reference><Citation>',
+#'               '<ArticleId IdType=\"pubmed\">25822800</ArticleId>',
+#'               '<ArticleId IdType=\"pmc\">PMC4739640</ArticleId>',
+#'               '</Citation></Reference></xml>')
+#' easyPubMed:::EPM_reference_parse(ref)
+#' easyPubMed:::EPM_reference_parse(ref, id_type = 'pmc')
 #' 
 #' @author 
 #' Damiano Fantini, \email{damiano.fantini@@gmail.com}
@@ -2684,7 +2673,7 @@ EPM_check_guide <- function(x) {
 
 
 
-#' Search for PubMed Records
+#' Search for PubMed Records.
 #' 
 #' Query PubMed (Entrez) via the PubMed API eSearch utility. 
 #' Calling this function results in submitting a query to the NCBI EUtils 
@@ -2707,9 +2696,9 @@ EPM_check_guide <- function(x) {
 #' @param query_string String (character vector of length 1), 
 #' corresponding to the query string.
 #' @param api_key String (character vector of length 1), 
-#' corresponding to the NCBI API key. Can be NULL.
+#' corresponding to the NCBI API key. Can be `NULL`.
 #' @param verbose logical, shall progress information be printed to console.
-#' Defaults to TRUE.
+#' Defaults to `TRUE`.
 #' 
 #' 
 #' @examples 
@@ -2780,7 +2769,7 @@ epm_query <- function (query_string, api_key = NULL, verbose = TRUE) {
 
 
 
-#' Query PubMed by PMIDs
+#' Query PubMed by PMIDs.
 #' 
 #' Query PubMed using a list of PubMed record identifiers (PMIDs) as input. 
 #' The list of identifiers is automatically split into a series of 
@@ -2793,7 +2782,7 @@ epm_query <- function (query_string, api_key = NULL, verbose = TRUE) {
 #' character.
 #' 
 #' @param api_key String (character vector of length 1), 
-#' corresponding to the NCBI API key. Can be NULL.
+#' corresponding to the NCBI API key. Can be `NULL`.
 #' 
 #' @param verbose Logical, shall details about the 
 #' progress of the operation be printed to console.
@@ -2914,7 +2903,7 @@ epm_query_by_pmid <- function(pmids, api_key = NULL, verbose = TRUE) {
 }
 
 
-#' Query PubMed by Full-length Title
+#' Query PubMed by Full-length Title.
 #' 
 #' Execute a PubMed query using a full-length 
 #' publication title as query string. Tokenization and 
@@ -2936,7 +2925,7 @@ epm_query_by_pmid <- function(pmids, api_key = NULL, verbose = TRUE) {
 #' using a specific sentence included in the abstract of a record).
 #' 
 #' @param api_key String (character vector of length 1), 
-#' corresponding to the NCBI API key. Can be NULL.
+#' corresponding to the NCBI API key. Can be `NULL`.
 #' 
 #' @param verbose Logical, shall details about the 
 #' progress of the operation be printed to console.
@@ -3025,10 +3014,10 @@ epm_query_by_fulltitle <- function(fulltitle, field = "[Title]",
 
 
 
-#' Extract Information from a Raw PubMed Record
+#' Extract Information from a Raw PubMed Record.
 #' 
 #' Read a raw PubMed record, identify XML tags, extract information 
-#' and cast it into a structured data.frame. The expected input is
+#' and cast it into a structured `data.frame`. The expected input is
 #' an XML-tag-decorated string corresponding to a single PubMed
 #' record. Information about article title, authors, affiliations, 
 #' journal name and abbreviation, publication date, references, and
@@ -3048,16 +3037,16 @@ epm_query_by_fulltitle <- function(fulltitle, field = "[Title]",
 #' propagated within each record to fill missing values. 
 #' @param compact_output Logical, shall record data be returned in a 
 #' compact format where each row is a single record and author names are
-#' collapsed together. If FALSE, each row corresponds to a single author of
+#' collapsed together. If `FALSE`, each row corresponds to a single author of
 #' the publication and the record-specific data are recycled for all included
 #' authors.
 #' @param include_abstract Logical, shall abstract text be included in the 
-#' output data.frame. If FALSE, the abstract text column is populated 
+#' output data.frame. If `FALSE`, the abstract text column is populated 
 #' with a missing value.
 #' @param max_references Numeric, maximum number of references to return (for
 #' each PubMed record).
 #' @param ref_id_type String, must be one of the
-#' following values: c('pmid', 'doi'). Type of identifier used to describe 
+#' following values: `c('pmid', 'doi')`. Type of identifier used to describe 
 #' citation references. 
 #' 
 #' 
@@ -3324,33 +3313,33 @@ epm_parse_record <- function(pubmedArticle,
 
 
 
-#' Fetch Raw Records from Pubmed
+#' Fetch Raw Records from Pubmed.
 #' 
 #' Fetch raw PubMed records from PubMed. Records can be downloaded 
 #' in text or xml format and stored into a local object or written to 
 #' local files. 
 #' 
 #' 
-#' @param x An easyPubMed object. 
+#' @param x An `easyPubMed` object. 
 #' @param format String, the desired format for the raw records. 
 #' This argument must take one of the following
-#' values: c("uilist", "medline", "xml") and defaults to "xml".
+#' values: `c("uilist", "medline", "xml")` and defaults to `"xml"`.
 #' @param api_key String, corresponding to the NCBI API token (if available). 
 #' NCBI token srings can be requested from NCBI. Record download will be 
-#' faster if a valid NCBI token is used. This argument can be NULL. 
+#' faster if a valid NCBI token is used. This argument can be `NULL`. 
 #' @param write_to_file Logical of length 1. Shall raw records be written to 
-#' a file on the local machine. It defaults to FALSE.
+#' a file on the local machine. It defaults to `FALSE`.
 #' @param outfile_path Path to the folder on the local machine where files 
-#' will be saved (if `write_to_file` is TRUE). It must point to an
-#' already existing directory. If NULL, the working directory will be used. 
+#' will be saved (if `write_to_file` is `TRUE`). It must point to an
+#' already existing directory. If `NULL`, the working directory will be used. 
 #' @param outfile_prefix String, prefix that will be added to the name
 #' of each file written to the local machine. This argument is parsed only 
-#' when `write_to_file` is TRUE. If NULL, an arbitrary prefix will be added 
+#' when `write_to_file` is `TRUE`. If `NULL`, an arbitrary prefix will be added 
 #' (easypubmed_job_YYYYMMDDHHMM). 
 #' @param store_contents Logical of length 1. Shall raw records be stored
-#' in the easyPubMed object. It defaults to TRUE. It may convenient to switch 
-#' this to FALSE when downloading large number of records. If store_contents
-#' is FALSE, write_to_file must be TRUE. 
+#' in the `easyPubMed` object. It defaults to `TRUE`. It may convenient to 
+#' switch this to `FALSE` when downloading large number of records. 
+#' If `store_contents` is `FALSE`, `write_to_file` must be `TRUE`. 
 #' @param encoding String, the encoding of the records retrieved from PubMed. 
 #' Typically, this is 'UTF-8'. 
 #' @param verbose Logical, shall details about the 
@@ -3414,7 +3403,7 @@ epm_fetch <- function(x, format = 'xml',
 
 
 
-#' Extract Information from a Raw PubMed Record
+#' Extract Information from a Raw PubMed Record.
 #' 
 #' Read a raw PubMed record, identify XML tags, extract information 
 #' and cast it into a structured data.frame. The expected input is
@@ -3424,7 +3413,7 @@ epm_fetch <- function(x, format = 'xml',
 #' keywords are returned.  
 #' 
 #' 
-#' @param x An easyPubMed object. The object must include raw records (n>0) 
+#' @param x An `easyPubMed` object. The object must include raw records (n>0) 
 #' downloaded in the 'xml' format.
 #' @param max_authors Numeric, maximum number of authors to retrieve. If this
 #' is set to -1, only the last author is extracted. If this is set to 1, 
@@ -3438,16 +3427,16 @@ epm_fetch <- function(x, format = 'xml',
 #' propagated within each record to fill missing values. 
 #' @param compact_output Logical, shall record data be returned in a 
 #' compact format where each row is a single record and author names are
-#' collapsed together. If FALSE, each row corresponds to a single author of
+#' collapsed together. If `FALSE`, each row corresponds to a single author of
 #' the publication and the record-specific data are recycled for all included
 #' authors (legacy approach).
 #' @param include_abstract Logical, shall abstract text be included in the 
-#' output data.frame. If FALSE, the abstract text column is populated 
+#' output data.frame. If `FALSE`, the abstract text column is populated 
 #' with a missing value.
 #' @param max_references Numeric, maximum number of references to return (for
 #' each PubMed record).
 #' @param ref_id_type String, must be one of the
-#' following values: c('pmid', 'doi'). Type of identifier used to describe 
+#' following values: `c('pmid', 'doi')`. Type of identifier used to describe 
 #' citation references. 
 #' @param verbose Logical, shall details about the 
 #' progress of the operation be printed to console.
@@ -3519,12 +3508,12 @@ epm_parse <- function(x, max_authors = 10,
 
 
 
-#' Import PubMed Records from Local Files
+#' Import PubMed Records from Local Files.
 #' 
 #' Read one or more text files including XML-decorated raw PubMed records 
-#' and rebuild an easyPubMed object. The function expects all files to be
+#' and rebuild an `easyPubMed` object. The function expects all files to be
 #' generated from the same query using `easyPubMed>3.0` and the 
-#' `epm_fetch()` function setting `write_to_file` to TRUE. This 
+#' `epm_fetch()` function setting `write_to_file` to `TRUE`. This 
 #' function can import a fraction or all of the files 
 #' resulting from a single query. Files resulting
 #' from non-compatible fetch jobs will be dropped. 
@@ -3552,7 +3541,7 @@ epm_parse <- function(x, max_authors = 10,
 #' @author 
 #' Damiano Fantini, \email{damiano.fantini@@gmail.com}
 #' 
-#' @return an easyPubMed object including raw XML PubMed records.
+#' @return an `easyPubMed` object including raw XML PubMed records.
 #' 
 #' @references 
 #' \url{https://www.data-pulse.com/dev_site/easypubmed/}

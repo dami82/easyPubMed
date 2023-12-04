@@ -1,5 +1,5 @@
 
-#  easyPubMed, ver 3.0.1
+#  easyPubMed, ver 3.03
 #  Retrieve and Process Scientific Publication Records from Pubmed
 
 #  Copyright (C) 2023, Damiano Fantini
@@ -85,7 +85,7 @@ setClass("easyPubMed",
 #' @param .Object The easyPubMed object being built.
 #' @param query_string String (character vector of length 1) corresponding 
 #' to the user-provided text of the query to be submitted to PubMed. 
-#' @param job_info List, this should be the output of EPM_job_split().
+#' @param job_info List, this should be the output of `EPM_job_split()`.
 #' 
 #' 
 #' @aliases initialize,easyPubMed-method
@@ -148,7 +148,7 @@ setMethod("initialize", "easyPubMed",
 #'
 #' @rdname easyPubMed-show
 #' 
-#' @param object the easyPubMed object being shown
+#' @param object the `easyPubMed` object being shown.
 #' 
 #' @aliases show,easyPubMed-method
 setMethod("show", signature(object = "easyPubMed"),
@@ -214,7 +214,7 @@ setMethod("show", signature(object = "easyPubMed"),
 #'
 #' @rdname easyPubMed-print
 #' 
-#' @param x the easyPubMed object being shown
+#' @param x the `easyPubMed` object being shown.
 #' @importFrom methods show
 #' 
 #' @aliases print,easyPubMed-method
@@ -234,9 +234,9 @@ setMethod("print", signature(x = "easyPubMed"),
 
 #' Method getEPMData.
 #' 
-#' Retrieve processed data from an easyPubMed object.
+#' Retrieve processed data from an `easyPubMed` object.
 #' 
-#' @param x an object of class easyPubMed.
+#' @param x an object of class `easyPubMed`.
 #' 
 #' @rdname getEPMData
 #' @exportMethod getEPMData  
@@ -257,9 +257,9 @@ setMethod("getEPMData", signature(x="easyPubMed"),
 
 #' Method getEPMQuery.
 #' 
-#' Retrieve the user-provided query string from an easyPubMed object.
+#' Retrieve the user-provided query string from an `easyPubMed` object.
 #' 
-#' @param x an object of class easyPubMed. 
+#' @param x an object of class `easyPubMed`. 
 #' 
 #' @rdname getEPMQuery
 #' @exportMethod getEPMQuery  
@@ -280,9 +280,9 @@ setMethod("getEPMQuery", signature(x="easyPubMed"),
 
 #' Method getEPMMeta.
 #' 
-#' Retrieve meta data from an easyPubMed object.
+#' Retrieve meta data from an `easyPubMed` object.
 #' 
-#' @param x an object of class easyPubMed. 
+#' @param x an object of class `easyPubMed`. 
 #' 
 #' @rdname getEPMMeta
 #' @exportMethod getEPMMeta  
@@ -304,9 +304,9 @@ setMethod("getEPMMeta", signature(x="easyPubMed"),
 #' Method getEPMUilist.
 #' 
 #' Retrieve the list of unique record identifiers (PMIDs) 
-#' from an easyPubMed object.
+#' from an `easyPubMed` object.
 #' 
-#' @param x an object of class easyPubMed. 
+#' @param x an object of class `easyPubMed`. 
 #' 
 #' @rdname getEPMUilist
 #' @exportMethod getEPMUilist  
@@ -331,9 +331,9 @@ setMethod("getEPMUilist", signature(x="easyPubMed"),
 
 #' Method getEPMRaw.
 #' 
-#' Retrieve the raw PubMed record data stored in an easyPubMed object. 
+#' Retrieve the raw PubMed record data stored in an `easyPubMed` object. 
 #' 
-#' @param x an object of class easyPubMed. 
+#' @param x an object of class `easyPubMed`. 
 #' 
 #' @rdname getEPMRaw
 #' @exportMethod getEPMRaw  
@@ -354,9 +354,9 @@ setMethod("getEPMRaw", signature(x="easyPubMed"),
 
 #' Method getEPMMisc.
 #' 
-#' Retrieve miscellaneous information stored in an easyPubMed object. 
+#' Retrieve miscellaneous information stored in an `easyPubMed` object. 
 #' 
-#' @param x an object of class easyPubMed. 
+#' @param x an object of class `easyPubMed`. 
 #' 
 #' @rdname getEPMMisc
 #' @exportMethod getEPMMisc  
@@ -378,14 +378,14 @@ setMethod("getEPMMisc", signature(x="easyPubMed"),
 #' Method getEPMJobList.
 #' 
 #' Retrieve the list of record retrieval sub-jobs 
-#' from an easyPubMed object. 
-#' Record retrieval sub-jobs are stored in a data.frame and each
+#' from an `easyPubMed` object. 
+#' Record retrieval sub-jobs are stored in a `data.frame` and each
 #' row corresponds to an independent non-overlapping 
-#' PubMed query. This data.frame guides the record retrieval process. 
-#' This data.frame is obtained from the 
-#' 'misc' slot of an easyPubMed object.
+#' PubMed query. This `data.frame` guides the record retrieval process. 
+#' The `data.frame` is obtained from the 
+#' 'misc' slot of an `easyPubMed` object.
 #' 
-#' @param x an object of class easyPubMed. 
+#' @param x an object of class `easyPubMed`. 
 #' 
 #' @rdname getEPMJobList
 #' @exportMethod getEPMJobList  
@@ -412,10 +412,10 @@ setMethod("getEPMJobList", signature(x="easyPubMed"),
 
 #' Method setEPMData.
 #' 
-#' Attach (or replace) processed data to an easyPubMed object.
+#' Attach (or replace) processed data to an `easyPubMed` object.
 #' 
-#' @param x an object of class easyPubMed.
-#' @param y data.frame including processed data.
+#' @param x an object of class `easyPubMed`.
+#' @param y `data.frame` including processed data.
 #' 
 #' @rdname setEPMData
 #' @exportMethod setEPMData  
@@ -437,9 +437,9 @@ setMethod("setEPMData", signature(x="easyPubMed", y="data.frame"),
 #' Method setEPMQuery.
 #' 
 #' Attach (or replace) a user-provided query string 
-#' to an easyPubMed object.
+#' to an `easyPubMed` object.
 #' 
-#' @param x an object of class easyPubMed. 
+#' @param x an object of class `easyPubMed`. 
 #' @param y string (character vector of length 1) corresponding to
 #' a PubMed query string.
 #' 
@@ -465,9 +465,9 @@ setMethod("setEPMQuery", signature(x="easyPubMed", y="character"),
 
 #' Method setEPMMeta.
 #' 
-#' Attach (or replace) meta data to an easyPubMed object.
+#' Attach (or replace) meta data to an `easyPubMed` object.
 #' 
-#' @param x an object of class easyPubMed. 
+#' @param x an object of class `easyPubMed`. 
 #' @param y list including meta data information.
 #' 
 #' @rdname setEPMMeta
@@ -490,9 +490,9 @@ setMethod("setEPMMeta", signature(x="easyPubMed", y="list"),
 #' Method setEPMUilist.
 #' 
 #' Attach (or replace)  the list of unique record identifiers (PMIDs) 
-#' to an easyPubMed object.
+#' to an `easyPubMed` object.
 #' 
-#' @param x an object of class easyPubMed. 
+#' @param x an object of class `easyPubMed`. 
 #' @param y list of unique PubMed record identifiers (PMIDs).
 #' 
 #' @rdname setEPMUilist
@@ -515,9 +515,9 @@ setMethod("setEPMUilist", signature(x="easyPubMed", y="list"),
 #' Method setEPMRaw.
 #' 
 #' Attach (or replace) raw PubMed record data 
-#' to an easyPubMed object. 
+#' to an `easyPubMed` object. 
 #' 
-#' @param x an object of class easyPubMed. 
+#' @param x an object of class `easyPubMed`. 
 #' @param y list of PubMed records (raw data).
 #' 
 #' @rdname setEPMRaw
@@ -540,9 +540,9 @@ setMethod("setEPMRaw", signature(x="easyPubMed", y="list"),
 #' Method setEPMMisc.
 #' 
 #' Attach (or replace)  miscellaneous information 
-#' to an easyPubMed object. 
+#' to an `easyPubMed` object. 
 #' 
-#' @param x an object of class easyPubMed.
+#' @param x an object of class `easyPubMed`.
 #' @param y list including miscellaneous data and information. 
 #' 
 #' @rdname setEPMMisc
@@ -565,15 +565,15 @@ setMethod("setEPMMisc", signature(x="easyPubMed", y="list"),
 #' Method setEPMJobList.
 #' 
 #' Attach (or replace) the list of record retrieval sub-jobs 
-#' to an easyPubMed object. 
+#' to an `easyPubMed` object. 
 #' Record retrieval sub-jobs are stored in a data.frame and each
 #' row corresponds to an independent non-overlapping 
-#' PubMed query. This data.frame guides the record retrieval process. 
-#' This data.frame is written into the  
-#' 'misc' slot of an easyPubMed object.
+#' PubMed query. This `data.frame` guides the record retrieval process. 
+#' The `data.frame` is written into the  
+#' `misc` slot of an `easyPubMed` object.
 #' 
-#' @param x an object of class easyPubMed. 
-#' @param y data.frame including the list of 
+#' @param x an object of class `easyPubMed`. 
+#' @param y `data.frame` including the list of 
 #' PubMed record retrieaval sub-jobs.
 #' 
 #' @rdname setEPMJobList
@@ -607,7 +607,7 @@ setMethod("setEPMJobList", signature(x="easyPubMed", y="data.frame"),
 
 #' Method fetchEPMData.
 #' 
-#' Retrieve PubMed records for an easyPubMed object.
+#' Retrieve PubMed records for an `easyPubMed` object.
 #' 
 #' 
 #' @param x an easyPubMed-class object.
@@ -774,7 +774,7 @@ setMethod("fetchEPMData",
 #' Method parseEPMData.
 #' 
 #' Extract, parse and format information from raw PubMed records 
-#' stored in an easyPubMed object.
+#' stored in an `easyPubMed` object.
 #' 
 #' @param x an easyPubMed-class object
 #' @param params list including parameters to tune the 
@@ -890,4 +890,162 @@ setMethod("parseEPMData", signature(x = "easyPubMed",
             # return
             x
           })
+
+
+
+
+
+## --------------------------------------
+## --- Exported Method-wrapping f(x)s ---
+## --------------------------------------
+
+
+#' Get Meta Data from an easyPubMed Object.
+#' 
+#' Request Meta Data from an `easyPubMed` object. This is a wrapper
+#' function that calls the `getEPMMeta()` method. This function returns 
+#' contents from the `meta` slot.
+#' 
+#' @param x An `easyPubMed` object. 
+#' 
+#' @examples 
+#' try({
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND 2018[PDAT]')
+#'   get_epm_meta(x)
+#' }, silent = TRUE)
+#' 
+#'  
+#' @author 
+#' Damiano Fantini, \email{damiano.fantini@@gmail.com}
+#' 
+#' @return a list including meta data from an `easyPubMed` object.
+#' 
+#' @references 
+#' \url{https://www.data-pulse.com/dev_site/easypubmed/}
+#' 
+#' @export
+get_epm_meta <- function(x) {
+
+  stopifnot(inherits(x, "easyPubMed"))
+  y <- tryCatch(getEPMMeta(x), error = function(e) { NULL })
+  return(y)
+  
+}
+
+
+
+
+#' Get Raw Data from an easyPubMed Object.
+#' 
+#' Request Raw Data from an `easyPubMed` object. This is a wrapper
+#' function that calls the `getEPMRaw()` method. This function returns contents 
+#' from the `raw` slot.
+#' 
+#' @param x An `easyPubMed` object. 
+#' 
+#' @examples 
+#' try({
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND 2018[PDAT]')
+#'   x <- epm_fetch(x)
+#'   get_epm_raw(x)
+#' }, silent = TRUE)
+#' 
+#'  
+#' @author 
+#' Damiano Fantini, \email{damiano.fantini@@gmail.com}
+#' 
+#' @return a list including raw data from an `easyPubMed` object.
+#' 
+#' @references 
+#' \url{https://www.data-pulse.com/dev_site/easypubmed/}
+#' 
+#' @export
+get_epm_raw <- function(x) {
+  
+  stopifnot(inherits(x, "easyPubMed"))
+  y <- tryCatch(getEPMRaw(x), error = function(e) { NULL })
+  return(y)
+  
+}
+
+
+
+
+#' Get Processed Data from an easyPubMed Object.
+#' 
+#' Obtain Processed Data that were extracted from a list of PubMed records. 
+#' This is a wrapper function that calls 
+#' the `getEPMData()` method. This function returns contents 
+#' from the `data` slot.
+#' 
+#' @param x An `easyPubMed` object. 
+#' 
+#' @examples 
+#' try({
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND 2018[PDAT]')
+#'   x <- epm_fetch(x)
+#'   x <- epm_parse(x, max_references = 5, max_authors = 5)
+#'   get_epm_data(x)
+#' }, silent = TRUE)
+#' 
+#'  
+#' @author 
+#' Damiano Fantini, \email{damiano.fantini@@gmail.com}
+#' 
+#' @return a `data.frame` including processed data from an `easyPubMed` object.
+#' 
+#' @references 
+#' \url{https://www.data-pulse.com/dev_site/easypubmed/}
+#' 
+#' @export
+get_epm_data <- function(x) {
+  
+  stopifnot(inherits(x, "easyPubMed"))
+  y <- tryCatch(getEPMData(x), error = function(e) { NULL })
+  return(y)
+  
+}
+
+
+
+
+#' Get PubMed Record Identifiers from an easyPubMed Object.
+#' 
+#' Request the list of unique PubMed Record Identifiers that are contained 
+#' in an `easyPubMed` object. This function is a wrapper
+#' function calling the `getEPMUilist()` method. This function returns contents 
+#' from the `uilist` slot.
+#' 
+#' @param x An `easyPubMed` object. 
+#' 
+#' @examples 
+#' try({
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND 2018[PDAT]')
+#'   x <- epm_fetch(x)
+#'   get_epm_uilist(x)
+#' }, silent = TRUE)
+#' 
+#'  
+#' @author 
+#' Damiano Fantini, \email{damiano.fantini@@gmail.com}
+#' 
+#' @return a character vector including a list of unique record identifiers 
+#' from an `easyPubMed` object.
+#' 
+#' @references 
+#' \url{https://www.data-pulse.com/dev_site/easypubmed/}
+#' 
+#' @export
+get_epm_uilist <- function(x) {
+  
+  stopifnot(inherits(x, "easyPubMed"))
+  y <- tryCatch(getEPMUilist(x), error = function(e) { NULL })
+  return(y)
+  
+}
+
+
+
+
+
 

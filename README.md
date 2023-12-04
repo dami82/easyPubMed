@@ -1,4 +1,4 @@
-# easyPubMed, latest dev version (ver. 3.01)
+# easyPubMed, latest dev version (ver. 3.03)
 
 **easyPubMed** is an **open-source R interface to the Entrez Programming Utilities** aimed at allowing programmatic access to [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/) in the R environment. 
 The package is suitable for downloading large number of records, and includes a collection of functions to perform basic 
@@ -8,7 +8,7 @@ processing of the *Entrez/PubMed* query responses. The library supports either *
 
 
 
-### New features of easyPubMed version 3.01
+### New features of easyPubMed version 3.03
 
 - **Simplified Pipeline**. The process of retrieving and analyzing Pubmed records 
 has been updated and simplified. The revised pipeline includes three steps: 
@@ -48,7 +48,7 @@ includes one row per record.
 
 ### Installation
 
-The latest version (3.01) of the library is hosted on *GitHub*, and you can install it using the `devtools` R library as follows.
+The latest version (3.03) of the library is hosted on *GitHub*, and you can install it using the `devtools` R library as follows.
 
 ```
 devtools::install_github("dami82/easyPubMed")
