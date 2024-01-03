@@ -1,0 +1,724 @@
+---
+title: "Retrieving and Processing PubMed Records using easyPubMed"
+author: "Damiano Fantini"
+date: "`r format(Sys.time(), format = '%B %d, %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      toc_collapsed: true
+    toc_depth: 3
+    number_sections: false
+    theme: lumen
+vignette: >
+  %\VignetteIndexEntry{easyPubMed demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+  % \VignetteDepends{easyPubMed}
+---
+
+
+```{r include=FALSE, echo=FALSE, results='hide', eval=TRUE}
+# Declarations
+base_epm_ver <- '3.0'
+stab_epm_ver <- '3.1.3'
+this_epm_ver <- '3.1.3'
+
+
+
+# pre-load libs and data
+library(easyPubMed)
+data("epm_samples")
+
+# Collect custom f(x)
+rebuild_uili <- epm_samples$fx$rebuild_uili
+rebuild_li <- epm_samples$fx$rebuild_li
+rebuild_df <- epm_samples$fx$rebuild_df
+fabricate_epm_obj <- epm_samples$fx$fabricate_epm_obj
+slice_epm_obj_to_special <- epm_samples$fx$slice_epm_obj_to_special
+
+# Collect data
+blca_2018 <- epm_samples$bladder_cancer_2018
+blca_40y <- epm_samples$bladder_cancer_40y
+
+# Fabricate objects (vignette version)
+epm <- fabricate_epm_obj(blca_2018$demo_data_03)
+epm_xmpl_01 <- slice_epm_obj_to_special(epm, mode = 1)
+epm_xmpl_02 <- slice_epm_obj_to_special(epm, mode = 2)
+epm_xmpl_03 <- fabricate_epm_obj(blca_2018$demo_data_04)
+epm_xmpl_04 <- fabricate_epm_obj(blca_40y$demo_data_01)
+epm_xmpl_06 <- fabricate_epm_obj(blca_2018$demo_data_02)
+epm_xmpl_07 <- fabricate_epm_obj(blca_2018$demo_data_05)
+```
+
+
+*PubMed* is an online repository of references and abstracts of publications in the fields of medicine and life sciences. *Pubmed* is a free resource that is developed and maintained by the National Center for Biotechnology Information (NCBI), at the U.S. National Library of Medicine (NLM), located at the National Institutes of Health (NIH). *PubMed* homepage is located at the following URL: [https://pubmed.ncbi.nlm.nih.gov/](https://pubmed.ncbi.nlm.nih.gov/). Other than its web portal, *PubMed* can be programmatically queried via the NCBI Entrez E-utilities interface.
+
+**easyPubMed** is an **open-source R interface to the Entrez Programming Utilities** aimed at allowing programmatic access to *PubMed* in the R environment. The package is suitable for downloading large number of records, and includes a collection of functions to perform basic processing of the *Entrez/PubMed* query responses. The library supports either *XML* or *TXT* ("medline") format. 
+This vignette covers the key functionalities of `easyPubMed` and provides some informative examples to get started.
+
+
+-----
+
+
+
+## Notes
+
+- This vignette covers `easyPubMed` version `r this_epm_ver`. Compatibility with previous versions of `easyPubMed` is NOT implied nor guaranteed.
+
+- `easyPubMed` is an open-source software, under the GPL-3 license and comes with ABSOLUTELY NO WARRANTY. For more questions about the GPL-3 license terms, see [www.gnu.org/licenses](https://www.gnu.org/licenses/gpl-3.0.html).
+
+- This R library was written based on the information included in the *Entrez Programming Utilities Help* manual authored by Eric Sayers, PhD and available on the NCBI Bookshelf ([NBK25500](https://www.ncbi.nlm.nih.gov/books/NBK25500/)).
+
+- This R library is NOT endorsed, supported, maintained NOR affiliated with NCBI.
+
+
+-----
+
+
+
+# New features of easyPubMed version `r this_epm_ver`
+
+
+- **Simplified Pipeline**. The process of retrieving and analyzing Pubmed records 
+has been updated and simplified. The revised pipeline includes three steps: 
+*1)* submit a query;  *2)* fetch records;  *3)* extract information. The 
+corresponding functions are discussed below in this vignette.
+
+
+- **Automatic Job splitting into Sub-Queries**. The Entrez server imposes a strict 
+n=10,000 limit to the number of records that can be programmatically 
+retrieved from a single query. Whenever possible, the `easyPubMed` 
+library automatically attempts to split queries returning large number of
+records into lists of smaller, manageable queries.  
+
+
+- **The easyPubMed S4 Class**. Here we introduce a new S4 class 
+(`easyPubMed`) that was designed to better store and manage query information, 
+retrieved records and associated meta-data. 
+This S4 class comes with a series of methods and is 
+aimed at improving data handling and analysis reproducibility. Raw or processed
+data can be obtained from an `easyPubMed` object via the appropriate
+*getter* functions (as discussed below).
+
+
+- **Additional Parsed Fields**. The new `epm_parse()` function supports 
+extraction of additional information from Pubmed records (compared to 
+previous versions of this R library). Extracted fields now include
+*mesh_codes*, *grant_ids*, *references* and *conflict of interest statements* 
+(cois) among others. For more information, see the examples below. 
+
+
+- **Compact Output**. Unlike previous versions of `easyPubMed`, it is now 
+possible to collapse author information (*i.e.*, author names) into a 
+single string. This way, the output (parsed `data.frame`) only 
+includes one row per record.
+
+
+-----
+
+
+
+# Installation
+
+### Stable Version
+
+To install the stable version (`r stab_epm_ver`) of `easyPubMed` from CRAN, you can run the following line of code.
+
+```{r inst__0001, include = TRUE, echo = TRUE, eval = FALSE}
+install.packages("easyPubMed")
+```
+
+-----
+
+### Dev Version(s)
+
+*Dev* versions of the library are hosted on *GitHub*. If interested, you can install the latest *dev* version using the `devtools` library.
+
+```{r inst___04, include = TRUE, echo = TRUE, eval = FALSE}
+devtools::install_github("dami82/easyPubMed")
+```
+
+
+
+-----
+
+
+# Tutorial
+
+The first section of the tutorial covers how to use `easyPubMed` (version `r base_epm_ver` or later) for querying *PubMed*, retrieving records from the *Entrez History Server*, and analyzing results. The second part of the tutorial provides additional examples and information about special cases and advanced operations. 
+
+
+-----
+
+
+## Overview
+
+The typical `easyPubMed` pipeline is a three-step process.
+
+
+- Submit a **PubMed query** via `epm_query()`. *This function submits a query to Entrez/PubMed, reads the server response, and depending on the anticipated number of results it may automatically split the query into multiple sub-queries (whenever needed and/or possible). The query string should be built using standard PubMed syntax, i.e. the user can use the same tags/keywords (e.g., '[AU]' or '[PDAT]') as the PubMed web portal. This function returns an `easyPubMed` object.*  
+
+
+- **Download PubMed records** via `epm_fetch()`. *This function reads the information included in an `easyPubMed` object and downloads records from the Entrez/PubMed server. Records can be retrieved in XML (default) or Medline formats. By default, raw records are stored in the 'raw' slot of the `easyPubMed` object, and can be accessed via the `get_epm_raw()` function. Alternatively, records can be written to local files.* 
+
+
+- [Optional] **Extract Information** from raw XML records via `epm_parse()`. *This function is used to identify XML fields of interest in each record, extract the corresponding information, and cast them into a structured data.frame. Results are stored in the 'data' slot of the `easyPubMed` object, and can be accessed via the `get_epm_data()` function.*
+
+
+-----
+
+
+**PubMed Query and Record Retrieval**
+
+The code below illustrates the typical steps of an `easyPubMed` analysis. All data (raw records as well as processed data) are stored in the resulting `easyPubMed` object. In this example, n=1,597 records were retrieved and processed. This took about 14 min using a 2-vCPUs, 4Gb-memory machine running on Ubuntu 20.04. Data parsing (`epm_parse()`) is the step taking the longest time to complete. 	 
+
+
+```{r eval=FALSE, include=TRUE, echo=TRUE}
+# Load library
+library(easyPubMed)
+
+# Define Query String
+my_query <- '"bladder cancer"[Ti] AND "2018"[PDAT]' 
+
+# Submit the Query
+epm <- epm_query(my_query) 
+
+# Retrieve Records (xml format)
+epm <- epm_fetch(epm, format = 'xml')
+
+# Extract Information
+epm <- epm_parse(epm)
+
+# All results are stored in an easyPubMed object.
+epm
+```
+
+```{r echo=FALSE, include=TRUE, results='markup', eval=TRUE}
+epm
+```
+
+-----
+
+
+
+**Get Meta data**
+
+Meta data are attached to each `easyPubMed` object and provide information about the record query job (*e.g.*, number of expected records; date when the query was performed) as well as type/format of the downloaded data (*e.g.*, format and encoding of the raw data).  A unique identifier (UID) is also included to track different objects/query jobs. Meta data can be requested from an `easyPubMed` object via the `get_epm_meta()` function, which returns a list. 
+
+
+```{r include=TRUE, results='markup', eval=TRUE, echo=TRUE}
+job_meta <- get_epm_meta(x = epm)
+head(job_meta)
+```
+
+
+
+-----
+
+
+
+**Get Raw Records**
+
+Raw PubMed records can be obtained from an `easyPubMed` (after `epm_fetch()` has been completed) via the `get_epm_raw()` function, which returns a named list. Each element includes one PubMed record. The name of each element corresponds to its PubMed record identifier (PMID). 
+
+
+```{r results='markup'}
+raw_records <- get_epm_raw(epm)
+
+# elements are named after the corresponding PMIDs
+head(names(raw_records))
+# elements include raw PubMed records
+first_record <- raw_records[[1]] 
+
+# Show excerpt (from record #1)
+cat(substr(first_record, 1, 1200))
+```
+
+
+-----
+
+
+**Get Processed Data**
+
+
+Processed data can be obtained from an `easyPubMed` (after `epm_parse()` has been executed) via the `get_epm_data()` function Processed data are returned as a *data.frame*. By default, each row corresponds to a PubMed record. This default behavior can be modified by tuning the `compact_output` and `max_authors` arguments (see section below). The columns/fields extracted include record identifiers, journal name, publication date, title, abstract, MeSH codes, author names and affiliations. 
+
+
+```{r results='markup'}
+proc_data <- get_epm_data(epm)
+
+# show an excerpt (first 6 records, selected columns)
+slctd_fields <- c('pmid', 'doi', 'jabbrv', 'year', 'month', 'day')
+head(proc_data[, slctd_fields])
+```
+
+
+
+-----
+
+A comprehensive list of the fields that are extracted from raw XML records and returned as columns of the processed data object (*data.frame*) is shown below.
+
+- **pmid**: PubMed Record Unique Reference Number (Identifier).
+
+- **doi**: Digital Object Identifier.
+
+- **pmc**: PubMed Central Unique Reference Number (PMCID) (if available).
+
+- **journal**: Journal Name (full-length).
+
+- **jabbrv**: Journal Name (abbreviation).
+
+- **lang**: Language (*e.g.*, 'eng').
+
+- **year**: Publication Date (<PubDate> field), Year.
+
+- **month**: Publication Date (<PubDate> field), Month.
+
+- **day**: Publication Date (<PubDate> field), Day.
+
+- **title**: Record Title.
+
+- **abstract**: Record Abstract.
+
+- **mesh_codes**: Medical Subject Heading Codes (*e.g.*, 'D001749').
+
+- **mesh_terms**: Medical Subject Heading Codes (*e.g.*, 'Urinary Bladder Neoplasms').
+
+- **grant_ids**: Reference Number of Funding Grants Supporting the Publication (if available/provided).
+
+- **references**: Identifiers (PMIDs or DOIs) of Publications 
+
+- **coi**: Conflict of Interest Statement (if available/provided).
+
+- **authors**: List of Author Names. This field is returned when the `compact_output` argument is set to `TRUE` (`epm_parse()` function). Otherwise, the following columns are included: 'lastname', 'forename', 'address', 'email'.
+
+- **affiliation**: Address and/or Affiliation Associated with the First Author of the Study. 
+
+
+                 
+                 
+-----
+
+
+**Get Record Identifiers (PMIDs)**
+
+
+The identifiers (PMIDs) of records included in an `easyPubMed` object (after `epm_fetch()` has been executed) can be obtained via the `get_epm_uilist()` function, which returns a character vector. PMIDs are automatically detected and extracted from all downloaded records, independently of the raw record format.
+
+
+
+```{r}
+# Get PMIDs
+all_pmids <- get_epm_uilist(epm)
+
+# Show excerpt
+head(all_pmids)
+```
+
+
+
+-----
+
+
+## Advanced Operations
+
+
+This section includes a few examples of less-common `easyPubMed` pipelines and operations. Please, contact the package maintainer for additional questions. 
+
+
+
+
+### Non-standard PubMed Queries
+
+The `easyPubMed` library comes with two special *Query* functions that are designed to address specific goals:
+
+- Query *Entrez/PubMed* by exact match of a full-length title (article title): `epm_query_by_fulltitle()`.
+
+- Execute a PubMed Query by providing a list of record identifiers (PMIDs): `epm_query_by_pmid()`.
+
+These special query functions may replace the first step of the `easyPubMed` pipeline. After the query step has been completed, record retrieval proceeds as outlined above, *i.e.*, via the `epm_fetch()` function.
+
+
+-----
+
+
+**Query by Article Title**
+
+
+It is possible to query PubMed for a record of interest by providing its full-length title as query string and via the `epm_query_by_fulltitle()` function. This function takes a string (character vector of length 1) as its `fulltitle` argument. The string should NOT include new-line characters (*e.g.*, \n) or multi-spaces, as those may prevent the exact-match search. These special characters are NOT removed automatically (by design). You can use regular expressions (*e.g.*, `gsub()`) to clean a `fulltitle` string before performing the query. An example is shown below.
+
+
+```{r results='markup', message=FALSE, warning=FALSE}
+# Article Title (including new-line chars)
+my_title <- "Role of gemcitabine and cisplatin as 
+             neoadjuvant chemotherapy in muscle invasive bladder cancer: 
+             Experience over the last decade."
+
+# Unpolished title string
+cat(my_title)
+# Clean the title
+my_title <- gsub('[[:space:]]+', ' ', my_title)
+
+# Clean title string
+cat(my_title)
+```
+
+```{r results='hide', message=FALSE, warning=FALSE, eval=FALSE, include=TRUE, echo=TRUE}
+# Query and fetch
+epm_xmpl_01 <- epm_query_by_fulltitle(fulltitle = my_title)
+epm_xmpl_01 <- epm_fetch(epm_xmpl_01)
+epm_xmpl_01
+```
+
+```{r results='markup', message=FALSE, warning=FALSE, eval=TRUE, include=TRUE, echo=FALSE}
+epm_xmpl_01
+```
+
+
+-----
+
+
+**Query Using a List of PMIDs**
+
+The `epm_query_by_pmid()` takes a character vector as its `pmids` argument. If a long list of PMIDs is provided (n>50), the function automatically splits the query job into multiple 50-record sub-jobs. The resulting 'easyPubMed' object displays '<Custom query (epm_query_by_pmid)>' as value of the *query_string* meta data field. An example is shown below. 
+
+```{r results='markup', message=FALSE, warning=FALSE, eval=FALSE, include=TRUE, echo=TRUE}
+my_pmids <- c('31572460', '31511849', '31411998')
+
+epm_xmpl_02 <- epm_query_by_pmid(pmids = my_pmids)
+epm_xmpl_02 <- epm_fetch(epm_xmpl_02)
+epm_xmpl_02
+```
+
+```{r results='markup', message=FALSE, warning=FALSE, eval=TRUE, include=TRUE, echo=FALSE}
+epm_xmpl_02
+```
+
+
+
+-----
+
+
+### Retrieve non-XML Records
+
+
+The `epm_fetch()` function supports three different formats. The default format is `xml`. Alternatively, the `medline` and `uilist` formats are also supported. Briefly, the `medline` option returns records in plain text format (see example below). On the contrary, the `uilist` format simply requests the identifiers (PMIDs) of all records returned by a query (no additional record content is retrieved from Entrez/PubMed). Note that non-XML records cannot be used to extract record information via `epm_parse()`.
+
+
+```{r results='markup', message=FALSE, warning=FALSE, eval=FALSE, include=TRUE, echo=TRUE}
+# Define Query String
+my_query <- '"bladder cancer"[Ti] AND "2018"[PDAT]' 
+
+# Submit the Query
+epm_xmpl_03 <- epm_query(my_query) 
+
+# Retrieve Records (request 'medline' format!)
+epm_xmpl_03 <- epm_fetch(epm_xmpl_03, format = 'medline')
+
+# Get records
+xmpl_03_raw <- get_epm_raw(epm_xmpl_03)
+
+# Elements are named after the corresponding PMIDs
+head(names(xmpl_03_raw))
+```
+
+
+```{r results='markup', message=FALSE, warning=FALSE, eval=TRUE, include=TRUE, echo=FALSE}
+xmpl_03_raw <- get_epm_raw(epm_xmpl_03)
+head(names(xmpl_03_raw))
+```
+
+```{r results='markup', message=FALSE, warning=FALSE}
+# Elements include raw PubMed records
+first_record <- xmpl_03_raw[[1]] 
+
+# Show an Excerpt (record n. 12, first 18 lines)
+cat(head(first_record, n=20), sep = '\n')  
+```
+
+
+-----
+
+
+
+### Queries Returning Large Numbers of Records
+
+In `easyPubMed` (version `r base_epm_ver` or later) there are no dedicated functions for downloading large numbers of records. Large query jobs are still carried out via the  `epm_query()` and `epm_fetch()` functions, which will attempt to split a single query into a list of manageable sub-jobs. An example is shown below. Briefly, we performed a query that returned n=20,825 records. The job was automatically split in n=4 sub-jobs, records were downloaded and parsed. The whole operation took about 3h 28m using a 2-vCPUs, 4Gb-memory machine running on Ubuntu 20.04 (*i.e.*, about 0.6s per record).	  
+
+
+```{r eval=FALSE, echo=TRUE, include=TRUE}
+# Define Query String
+blca_query <- '"bladder cancer"[Ti] AND ("1980"[PDAT]:"2020"[PDAT])'
+
+# Submit the Query
+epm_xmpl_04 <- epm_query(blca_query) 
+
+# Retrieve Records (medline format)
+epm_xmpl_04 <- epm_fetch(epm_xmpl_04)
+
+# Parse all records
+epm_xmpl_04 <- epm_parse(epm_xmpl_04)
+
+# Show Object
+epm_xmpl_04
+```
+
+```{r eval=TRUE, echo=FALSE, include=TRUE, results='markup'}
+# Show Object
+epm_xmpl_04
+```
+
+
+
+-----
+
+
+### Save Raw Records Locally
+
+Unlike previous versions of `easyPubMed`, there are no dedicated functions to write PubMed records to a local disk. Starting from `easyPubMed` version `r base_epm_ver`, this operation is performed by tuning the arguments of the `epm_fetch()` function and by setting the `write_to_file` to TRUE. 
+
+
+**Write Files to the Local Disc.**
+
+There are 4 arguments that can be adjusted to fine-tune the behavior of `epm_fetch()` and write PubMed records to local files. 
+
+
+- `write_to_file`: logical (defaults to `FALSE`). If `TRUE`, raw PubMed records are written to a local disk.
+
+- `outfile_path`: string pointing to an existing local directory (defaults to `NULL`). This argument is evaluated only when `write_to_file` is set to `TRUE`. Files including the raw PubMed records will be saved at the indicated location. If `NULL`, the current directory is used.
+
+- `outfile_prefix`: string indicating a prefix used for the name of files written to the local disk (defaults to `NULL`). If `NULL`, a unique prefix (prefix pattern: `easypubmed_job_yyyymmddhhmmss_`) is automatically generated. Files may be overwritten is a non-unique prefix is used.
+
+- `store_contents`: logical (defaults to `TRUE`). This argument is used to control whether a copy of the raw records should be stored in the current `easyPubMed` object (`raw` slot). If `write_to_file` is set to `TRUE` and `store_contents` is set to `FALSE`, raw records are written to disk and no copies are stored in the current object. This option is recommended for very large queries and replaces the `batch_pubmed_download()` function (available until version 2.32). If both `write_to_file` and `store_contents` are set to `TRUE`, records will be written to the local disk (backup copy) and also stored in the current `easyPubMed` object.
+
+
+
+```{r include=TRUE, echo=TRUE, eval=FALSE}
+# Define Query String
+my_query <- '"bladder cancer"[Ti] AND "2018"[PDAT]' 
+
+# Submit the Query
+epm_xmpl_05 <- epm_query(my_query) 
+
+# Retrieve Records
+epm_xmpl_05 <- epm_fetch(epm_xmpl_05, write_to_file = TRUE)
+
+# Check if file exists
+dir(pattern = '^easypubmed')
+```
+
+```{r echo=FALSE, include=TRUE, results='markup', eval=TRUE}
+print('easypubmed_job_202311201513_batch_01.txt')
+```
+
+-----
+
+
+
+**Read Files From the Local Disc.**
+
+It is possible to import local files storing raw PubMed records for further processing via the `epm_import_xml()` function. This function can be used if the following 3 conditions are met:
+
+- records were retrieved in the XML format. Other formats (*e.g.*, the "medline" format) are NOT supported;
+
+- records were downloaded and written using `easyPubMed`, version `3.0` or later. Compatibility with data/files downloaded using other tools or former versions of the `easyPubMed` library is NOT guaranteed.
+
+- if multiple files are imported together, all files were written as part of the same `epm_fetch()` job. Note that different jobs that used the same query are considered as independent jobs.
+
+
+Users should feed the `epm_import_xml()` function a character vector of file names (of length >= 1), where each element indicates a text file to be read and imported. 
+
+- **Note**. For queries returning very large number of records, it could be convenient to parse records in multiple batches (*e.g.*, one file at the time). This approach may be preferred because of memory efficiency and/or compatibility with parallelization. In these instances, the `epm_import_xml()` function will warn that only a subset of the expected files were imported, and then the parsing step will continue using all records included in the selected file(s). 
+
+
+
+```{r eval=FALSE, echo=TRUE, include=TRUE}
+# Import XML records from saved file
+epm_xmpl_06 <- epm_import_xml(x = 'easypubmed_job_202311201513_batch_01.txt')
+
+# Show Object
+epm_xmpl_06
+```
+
+```{r eval=TRUE, echo=FALSE, include=TRUE, results='markup'}
+epm_xmpl_06
+```
+
+-----
+
+
+
+
+### Alternative Approaches for Record Parsing
+
+As we outlined above, information can be extracted from raw records ("xml" format) via the `epm_parse()` function. Results (`data.frame`) are stored in the same `easyPubMed` object (`data` slot) and can be requested via the `get_epm_data()` function. Users can adjust the way information are extracted and formatted from PubMed records by tweaking the `epm_parse()` function arguments. The most important arguments are discussed below. 
+
+
+**Compact vs. extended output**.
+
+A new feature of `easyPubMed` (version `r base_epm_ver` or later) is the capacity of tuning the author information extraction process. The `compact_output` and `max_authors` arguments can be adjusted to get the desired behavior. 
+
+- `compact_output`: logical (defaults to `TRUE`). Author names are returned in a compact format (*i.e.*, author names are collapsed together) when this argument is set to `TRUE`, and each row in the final data.frame corresponds to a PubMed record. If `FALSE`, each row corresponds to a single author of the publication and the record-specific data are recycled for all included authors (legacy approach, this is similar to the typical output of the corresponding function in `easyPubMed` ver. *2.30* and earlier). When `compact_output` is set to `FALSE`, the processed data row number is typically bigger than the number or raw records that were retrieved. The behavior managed via the `compact_output` argument is a new feature of `easyPubMed` version *`r base_epm_ver`* or later. 
+
+- `max_authors`: numeric, maximum number of authors to retrieve. If this is set to -1, only the last author is extracted. If this is set to 1, only the first author is returned. If this is set to 2, the first and the last authors are extracted. If this is set to any other positive number (i), up to the leading (i-1) authors are retrieved together with the last author. If this is set to a number larger than the number of authors in a record, all authors are returned. Note that at least 1 author has to be retrieved, therefore a value of 0 is not accepted (coerced to -1).
+
+
+-----
+
+
+**Citations**.
+
+The `epm_parse()` function can now extract citation information (if available). This feature was introduced in `easyPubMed` version *`r base_epm_ver`*. The `max_references` and `ref_id_type` arguments can be adjusted to obtain information in the desired format. 
+
+- `max_references`: numeric, maximum number of references to return (from each PubMed record). 
+
+- `ref_id_type`: string, must be one of the following values: `c('pmid', 'doi')`. Type of identifier used to describe citation references.
+
+
+-----
+
+In the example below, n=1,597 records were retrieved and processed. This took less about 7 min using a 2-vCPUs, 4Gb-memory machine running on Ubuntu 20.04.	 
+
+
+```{r eval=FALSE, echo=TRUE, include=TRUE}
+my_query <- '"bladder cancer"[Ti] AND "2018"[PDAT]' 
+
+# Submit the Query
+epm_xmpl_07 <- epm_query(my_query) 
+
+# Retrieve Records
+epm_xmpl_07 <- epm_fetch(epm_xmpl_07)
+
+# Parse (custom params)
+epm_xmpl_07 <- epm_parse(epm_xmpl_07, 
+                         max_authors = 3, compact_output = TRUE, 
+                         max_references = 5, ref_id_type = 'pmid')
+
+# Request parsed data
+epm_data <- get_epm_data(epm_xmpl_07)
+
+# Columns of interest
+cols_of_int <- c('pmid',  'doi', 'authors', 'jabbrv', 'year', 'references')
+
+# Show an excerpt
+head(epm_data[, cols_of_int])
+```
+
+```{r eval=TRUE, echo=FALSE, include=TRUE, results='markup'}
+epm_data <- get_epm_data(epm_xmpl_07)
+
+# Columns of interest
+cols_of_int <- c('pmid',  'doi', 'authors', 'jabbrv', 'year', 'references')
+
+# Show an excerpt
+head(epm_data[, cols_of_int])
+```
+
+
+
+-----
+
+
+
+
+# Software Maintenance and Life Cycle
+
+- The new pipeline proposed in `easyPubMed` version `r this_epm_ver` replaces the old pipeline based on the following functions: `get_pubmed_ids()`, `fetch_pubmed_data()`, and `table_articles_byAuth()`. We are planning to phase out these functions by the end of 2024.
+
+- The current version of `easyPubMed` still includes revised versions of the `get_pubmed_ids()`, `fetch_pubmed_data()`, and `table_articles_byAuth()` for legacy purposes. The new versions of these functions should return output that is compatible with old versions of `easyPubMed` (with the exception of `get_pubmed_ids()`). Other functions (*e.g.*, `batch_pubmed_download ()` or `fetch_all_pubmed_ids()`) have been discontinued and/or replaced as outlined below.
+
+
+- **Function Replacement Map**
+
+  + `article_to_df()` -> `epm_parse_record()`
+  
+  + `articles_to_list()` -> *discontinued*
+  
+  + `batch_pubmed_download()` -> `epm_fetch()` [`write_to_file = TRUE`]
+
+  + `custom_grep()` -> `EPM_custom_grep()` [not exported]
+
+  + `fetch_all_pubmed_ids()` ->  `epm_fetch()` [`format = 'uilist'`]
+
+  + `fetch_pubmed_data()` -> `epm_fetch()`
+
+  + `get_pubmed_ids_by_fulltitle()` -> `epm_query_by_fulltitle()` 
+
+  + `get_pubmed_ids()` -> `epm_query()`
+
+  + `table_articles_byAuth()` -> `epm_parse()` and then `get_epm_data()` 
+
+  + `trim_address()` -> *discontinued*
+
+  + `fetch_PMID_data()` -> `epm_query_by_pmid()` and then `epm_fetch()`
+
+  + `extract_article_ids()` -> `EPM_detect_pmid()`  [not exported]
+
+  + `fetch_pubmed_data_by_PMID()` -> `epm_query_by_pmid()` and then `epm_fetch()`
+
+
+
+-----
+
+
+
+# Additional Information
+
+
+## More info, other examples and vignettes, and Advanced Guides
+
+- **Dev version** of `easyPubMed` on **GitHub** [Website](https://github.com/dami82/easyPubMed)
+
+- Additional Resources and Tutorials are made available via the [official website](https://www.data-pulse.com/dev_site/easypubmed/).
+
+
+
+-----
+
+
+## References
+
+- **easyPubMed official website** including news, vignettes, and further information [https://www.data-pulse.com/dev_site/easypubmed/](https://www.data-pulse.com/dev_site/easypubmed/)
+
+- Sayers, E. **A General Introduction to the E-utilities** (NCBI) [https://www.ncbi.nlm.nih.gov/books/NBK25497/](https://www.ncbi.nlm.nih.gov/books/NBK25497/)
+
+- **PubMed Help (NCBI)** [https://www.ncbi.nlm.nih.gov/books/NBK3827/](https://www.ncbi.nlm.nih.gov/books/NBK3827/)
+
+
+
+-----
+
+
+## Feedback, Citations and Collaborations
+
+- Thank you very much for using easyPubMed and/or reading this vignette. Please, feel free to contact me (author/maintainer) for feedback, questions and suggestions: my email is <damiano.fantini(at)gmail(dot)com>.  
+
+- If you use *easyPubMed* in a scientific publication, please cite this R package in the Materials and Methods section of the paper. Thanks! 
+
+- I may be open to collaborations. If you have an idea you would like to discuss or develop based on what you read in this vignette, feel free to contact me via email. 
+
+
+
+---
+
+
+*easyPubMed* Copyright (C) 2017-2023 Damiano Fantini. *This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.*
+
+
+
+
+
+
+-----
+
+# SessionInfo
+
+```{r message = FALSE, warning = FALSE, eval=TRUE}
+sessionInfo()
+```
+
+
+**Success!** - by Damiano Fantini - `r format(Sys.time(), format = '%b %d, %Y')`. 
+
+
