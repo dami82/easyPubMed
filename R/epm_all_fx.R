@@ -1,8 +1,8 @@
 
-#  easyPubMed, ver 3.03
+#  easyPubMed, ver 3.1.3
 #  Retrieve and Process Scientific Publication Records from Pubmed
 
-#  Copyright (C) 2023, Damiano Fantini
+#  Copyright (C) 2024, Damiano Fantini
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -105,11 +105,15 @@ EPM_custom_grep <- function (xml_data, tag, xclass = NULL, format = "list")
 #' query URL to the remote server.
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
 #'   qry <- paste0("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/", 
 #'                 "esearch.fcgi?db=pubmed&term=easyPubMed")
 #'   easyPubMed:::EPM_submit_q(qry)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' @author 
 #' Damiano Fantini, \email{damiano.fantini@@gmail.com}
@@ -175,17 +179,20 @@ EPM_submit_q <- function(qurl) {
 #' The \code{params} list must include the
 #' elements listed below.
 #' \itemize{
-#'   \item{"q"}{String corresponding to the Query to be submitted
-#' to the server.}
-#'   \item{"api_key"}{(Optional) String corresponding to the NCBI API key.}
+#'   \item `q`. String corresponding to the Query to be submitted to the server.
+#'   \item `api_key`. (Optional) String corresponding to the NCBI API key.
 #' }
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
 #'   my_q <- 'easyPubMed'
 #'   my_params <- list(q = my_q)
 #'   easyPubMed:::EPM_esearch_basic_q(params = my_params)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' @author 
 #' Damiano Fantini, \email{damiano.fantini@@gmail.com}
@@ -239,13 +246,17 @@ EPM_esearch_basic_q <- function(params) {
 #' xml string returned by the NCBI ESearch Server. 
 #' 
 #' 
-#' @examples 
+#' @examples
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
 #'   my_q <- 'easyPubMed'
 #'   my_params <- list(q = my_q)
 #'   x <- easyPubMed:::EPM_esearch_basic_q(params = my_params)
 #'   easyPubMed:::EPM_esearch_parse(x)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' @author 
 #' Damiano Fantini, \email{damiano.fantini@@gmail.com}
@@ -256,14 +267,14 @@ EPM_esearch_basic_q <- function(params) {
 #' @details 
 #' The output list includes the following items.
 #' \itemize{
-#'   \item{"web_env"}{String, unique identifier for fetching PubMed records
-#'   corresponding to the current query.}
-#'   \item{"query_key"}{Integer, unique numeric key for fetching PubMed records
-#'   corresponding to the current query.}
-#'   \item{"count"}{Integer, expected number of records returned 
-#'   by the current query.}
-#'   \item{"query_translation"}{String, translation of the Query string 
-#'   provided by the user.}
+#'   \item `web_env`. String, unique identifier for fetching PubMed records 
+#'   corresponding to the current query.
+#'   \item `query_key`. Integer, unique numeric key for fetching PubMed records
+#'   corresponding to the current query.
+#'   \item `count`. Integer, expected number of records returned 
+#'   by the current query.
+#'   \item `query_translation`. String, translation of the Query string 
+#'   provided by the user.
 #' }
 #' 
 #' @references 
@@ -322,21 +333,24 @@ EPM_esearch_parse <- function(x) {
 #' @details The input list must include the 
 #' elements listed below.
 #' \itemize{
-#'   \item{"web_env"}{String, unique value returned 
-#'   by the NCBI ESearch server.}
-#'   \item{"format"}{String corresponding to the desired 
-#'   response data format (e.g., xml).}
-#'   \item{"query_key"}{Integer, key value returned by the 
-#'   NCBI ESearch server.}
-#'   \item{"retstart"}{Integer, numeric index of the first 
-#'   record to be request.}
-#'   \item{"retmax"}{Integer, maximum number of records to be retrieved 
-#'   from the server.}
-#'   \item{"encoding"}{String, encoding of the data (e.g., "UTF-8").}
+#'   \item `web_env`. String, unique value returned 
+#'   by the NCBI ESearch server.
+#'   \item `format`. String corresponding to the desired 
+#'   response data format (e.g., "xml").
+#'   \item `query_key`. Integer, key value returned by the 
+#'   NCBI ESearch server.
+#'   \item `retstart`. Integer, numeric index of the first 
+#'   record to be request.
+#'   \item `retmax`. Integer, maximum number of records to be retrieved 
+#'   from the server.
+#'   \item `encoding`. String, encoding of the data (e.g., "UTF-8").
 #' }
 #' 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
 #'   x <- easyPubMed:::EPM_esearch_basic_q(params = list(q = "easyPubMed"))
 #'   x <- easyPubMed:::EPM_esearch_parse(x)
@@ -345,6 +359,7 @@ EPM_esearch_parse <- function(x) {
 #'                     format = "uilist")
 #'   easyPubMed:::EPM_efetch_basic_q(params = my_params)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' 
 #' @author 
@@ -408,12 +423,19 @@ EPM_efetch_basic_q <- function(params) {
       y <- tryCatch(paste(y, collapse = ''), error = function(e) { NULL })
       
       # Split
-      pmart_pat <- '<PubmedArticle(>|([[:space:]]+[^>]*>))'
+      # pmart_pat <- '<PubmedArticle(>|([[:space:]]+[^>]*>))'
+      pmart_pat <- paste0('(<PubmedArticle(>|([[:space:]]+[^>]*>)))|', 
+                          '(<PubmedBookArticle(>|([[:space:]]+[^>]*>)))')
+
       y <- tryCatch({strsplit(y, split = pmart_pat)[[1]][-1]}, 
-                    error = function(e) { NULL })
-      
+                     error = function(e) { NULL })
+
+      # y <- tryCatch({lapply(y, function(k) {
+      #   tryCatch({sub('</PubmedArticle>.*$', '', k)}, 
+      #            error = function(e) { NULL })})}, 
+      #   error = function(e) { NULL })
       y <- tryCatch({lapply(y, function(k) {
-        tryCatch({sub('</PubmedArticle>.*$', '', k)}, 
+        tryCatch({sub('</PubmedBookArticle>.*$', '', sub('</PubmedArticle>.*$', '', k))}, 
                  error = function(e) { NULL })})}, 
         error = function(e) { NULL })
       
@@ -470,10 +492,14 @@ EPM_efetch_basic_q <- function(params) {
 #' 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   qry <- "Damiano Fantini[AU] AND 2020[PDAT]"
+#'   qry <- 'Damiano Fantini[AU] AND "2018"[PDAT]'
 #'   easyPubMed:::EPM_esearch_efetch_seq(query_string = qry, format = "uilist")
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' 
 #' @author 
@@ -650,10 +676,14 @@ EPM_esearch_efetch_seq <- function(query_string, api_key = NULL,
 #' 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   qry <- "Damiano Fantini[AU] AND 2020[PDAT]"
+#'   qry <- 'Damiano Fantini[AU] AND "2018"[PDAT]'
 #'   easyPubMed:::EPM_retrieve_data(qry, format = "uilist")
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' 
 #' @author 
@@ -756,11 +786,14 @@ EPM_retrieve_data <- function(query_string, api_key = NULL, format = 'xml',
 #' 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   qry <- 'Damiano Fantini[AU]'
-#'   easyPubMed:::EPM_job_split(query_string = qry, 
-#'                              verbose = TRUE)
+#'   qry <- 'Damiano Fantini[AU] AND "2018"[PDAT]'
+#'   easyPubMed:::EPM_job_split(query_string = qry, verbose = TRUE)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #'                            
 #' 
 #' 
@@ -983,28 +1016,28 @@ EPM_job_split <- function(query_string, api_key = NULL,
 #' The following elements are expected and/or parsed from the
 #' `params` list:
 #' \itemize{
-#' \item{"encoding"}{String, e.g. "UTF-8".}
-#' \item{"format"}{Sring, must be one of the
-#' following values: c('uilist', 'medline', 'xml').}
-#' \item{"store_contents"}{Logical, shall retrieved contents 
-#' be stored in the object. If FALSE, the `write_to_file`
-#' argument must be TRUE.}
-#' \item{"write_to_file"}{Logical, shall retrieved contents
-#' be written to a file (or list of files). If FALSE, the
-#' `store_contents` argument must be TRUE.}
-#' \item{"outfile_path"}{Sring, path to the folder where 
+#' \item `encoding`. String, e.g. "UTF-8".
+#' \item `format`. String, must be one of the
+#' following values: `c('uilist', 'medline', 'xml')`.
+#' \item `store_contents`. Logical, shall retrieved contents 
+#' be stored in the object. If `FALSE`, the `write_to_file`
+#' argument must be `TRUE`.
+#' \item `write_to_file` Logical, shall retrieved contents
+#' be written to a file (or list of files). If `FALSE`, the
+#' `store_contents` argument must be `TRUE`.
+#' \item `outfile_path`. String, path to the folder where 
 #' files will be written. This argument is evaluated only
-#' if `write_to_file` is TRUE.}
-#' \item{"outfile_prefix"}{Sring, prefix of the 
+#' if `write_to_file` is `TRUE`.
+#' \item `outfile_prefix`. String, prefix of the 
 #' files that will be written locally. This argument 
 #' is evaluated only
-#' if `write_to_file` is TRUE.}
-#' \item{"api_key"}{Sring, NCBI API key. Can be NULL.}
-#' \item{"max_records_per_batch"}{Integer scalar (numeric 
+#' if `write_to_file` is `TRUE`.
+#' \item `api_key`. String, NCBI API key. Can be NULL.
+#' \item `max_records_per_batch`. Integer scalar (numeric 
 #' vector of length 1), this is the maximum number of 
-#' records retrieved per batch. It deafualts to 10,000.}
-#' \item{"verbose"}{Logical, shall details about the 
-#' progress of the operation be printed to console.}
+#' records retrieved per batch. It deafualts to 10,000.
+#' \item `verbose`. Logical, shall details about the 
+#' progress of the operation be printed to console.
 #' }
 #' 
 #' 
@@ -1139,29 +1172,29 @@ EPM_validate_fetch_params <- function(params) {
 #' The following elements are expected and/or parsed from the
 #' `params` list:
 #' \itemize{
-#' \item{"max_authors"}{Numeric, maximum number of authors to retrieve. If this
+#' \item `max_authors`. Numeric, maximum number of authors to retrieve. If this
 #' is set to -1, only the last author is extracted. If this is set to 1, 
 #' only the first author is returned. If this is set to 2, the first and the 
 #' last authors are extracted. If this is set to any other positive 
 #' number (i), up to the leading (i-1) authors are retrieved together with the 
 #' last author. If this is set to a number larger than the number of authors in
 #' a record, all authors are returned. Note that at least 1 author has to be
-#' retrieved, therefore a value of 0 is not accepted (coerced to -1).}
-#' \item{"autofill_address"}{Logical, shall author affiliations be 
-#' propagated within each record to fill missing values.}
-#' \item{"compact_output"}{Logical, shall record data be returned in a 
+#' retrieved, therefore a value of 0 is not accepted (coerced to -1).
+#' \item `autofill_address`. Logical, shall author affiliations be 
+#' propagated within each record to fill missing values.
+#' \item `compact_output`. Logical, shall record data be returned in a 
 #' compact format where each row is a single record and author names are
-#' collapsed together. If FALSE, each row corresponds to a single author of
+#' collapsed together. If `FALSE`, each row corresponds to a single author of
 #' the publication and the record-specific data are recycled for all included
-#' authors. }
-#' \item{"include_abstract"}{Logical, shall abstract text be included in the 
-#' output data.frame.} 
-#' \item{"max_references"}{Numeric, maximum number of references to return 
-#' (from each PubMed record).}
-#' \item{"ref_id_type"}{String, must be one of the
-#' following values: c('pmid', 'doi')}
-#' \item{"verbose"}{Logical, shall details about the 
-#' progress of the operation be printed to console.}
+#' authors. 
+#' \item `include_abstract`. Logical, shall abstract text be included in the 
+#' output `data.frame`.
+#' \item `max_references`. Numeric, maximum number of references to return 
+#' (from each PubMed record).
+#' \item `ref_id_type`. String, must be one of the
+#' following values: `c('pmid', 'doi')`.
+#' \item `verbose`. Logical, shall details about the 
+#' progress of the operation be printed to console.
 #' }
 #' 
 #' 
@@ -2702,10 +2735,14 @@ EPM_check_guide <- function(x) {
 #' 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
 #'   qry <- 'Damiano Fantini[AU] AND "2018"[PDAT]'
 #'   epm_query(query_string = qry, verbose = FALSE)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' 
 #' 
@@ -2789,10 +2826,15 @@ epm_query <- function (query_string, api_key = NULL, verbose = TRUE) {
 #' 
 #' 
 #' 
-#' @examples 
-#' my_pmids <- c(34097668, 34097669, 34097670)
-#' epm_query_by_pmid(my_pmids)
-#' 
+#' @examples
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
+#' try({
+#'   my_pmids <- c(34097668, 34097669, 34097670)
+#'   epm_query_by_pmid(my_pmids)
+#' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' @author 
 #' Damiano Fantini, \email{damiano.fantini@@gmail.com}
@@ -2931,10 +2973,15 @@ epm_query_by_pmid <- function(pmids, api_key = NULL, verbose = TRUE) {
 #' progress of the operation be printed to console.
 #' 
 #' 
-#' @examples 
-#' q0 <- 'Analysis of Mutational Signatures Using the mutSignatures R Library.'
-#' epm_query_by_fulltitle(q0)
-#' 
+#' @examples
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
+#' try({
+#'   q <- 'Analysis of Mutational Signatures Using the mutSignatures R Library.'
+#'   epm_query_by_fulltitle(q)
+#' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' @author 
 #' Damiano Fantini, \email{damiano.fantini@@gmail.com}
@@ -3053,7 +3100,11 @@ epm_query_by_fulltitle <- function(fulltitle, field = "[Title]",
 #' 
 #' 
 #' @examples 
-#' tryCatch({epm_parse_record()}, error = function(e) { NULL })
+#' data(epm_samples)
+#' x <- epm_samples$bladder_cancer_2018$demo_data_03$raw[[1]]
+#' epm_parse_record(x)
+#' 
+#' 
 #' 
 #' 
 #' @author 
@@ -3229,7 +3280,6 @@ epm_parse_record <- function(pubmedArticle,
                  stringsAsFactors = FALSE) 
     })
   
- 
   #
   # Put things together, prep for output
   if (compact_output) {
@@ -3245,17 +3295,31 @@ epm_parse_record <- function(pubmedArticle,
       month = ifelse(!is.null(date_out$month), date_out$month, NA), 
       day = ifelse(!is.null(date_out$day), date_out$day, NA), 
       title = ifelse(!is.null(arttitle), arttitle, NA), 
-      abstract = ifelse(!is.null(artabstr), 
+      
+      abstract = ifelse(!is.null(artabstr) && 
+                          length(artabstr)>0 && 
+                          !is.na(artabstr[[1]]), 
                         paste(artabstr, collapse = ' '), NA),
-      mesh_codes = ifelse(!is.null(mesh_trms$mesh_codes), 
+      mesh_codes = ifelse(!is.null(mesh_trms$mesh_codes) &&
+                            length(mesh_trms$mesh_codes) > 0 &&
+                            !is.na(mesh_trms$mesh_codes[[1]]), 
                           paste(mesh_trms$mesh_codes, collapse = '; '), NA),
-      mesh_terms = ifelse(!is.null(mesh_trms$mesh_terms), 
+      mesh_terms = ifelse(!is.null(mesh_trms$mesh_terms) &&
+                            length(mesh_trms$mesh_terms) > 0 &&
+                            !is.na(mesh_trms$mesh_terms[[1]]), 
                           paste(mesh_trms$mesh_terms, collapse = '; '), NA),
-      grant_ids = ifelse(!is.null(grantids), 
+      grant_ids = ifelse(!is.null(grantids) && 
+                           length(grantids) > 0 && 
+                           !is.na(grantids[[1]]), 
                          paste(grantids, collapse = '; '), NA), 
-      references = ifelse(!is.null(refes), 
+      references = ifelse(!is.null(refes) && 
+                            length(refes) > 0 && 
+                            !is.na(refes[[1]]), 
                           paste(refes, collapse = '; '), NA),
-      coi = ifelse(!is.null(artcoi), paste(artcoi, collapse = '; '), NA),
+      coi = ifelse(!is.null(artcoi) && 
+                     length(artcoi) > 0 && 
+                     !is.na(artcoi[[1]]), 
+                   paste(artcoi, collapse = '; '), NA),
       
       authors = ifelse(!is.null(artauths$collapsed$authors),
                        artauths$collapsed$authors, NA),
@@ -3282,17 +3346,31 @@ epm_parse_record <- function(pubmedArticle,
         month = ifelse(!is.null(date_out$month), date_out$month, NA), 
         day = ifelse(!is.null(date_out$day), date_out$day, NA), 
         title = ifelse(!is.null(arttitle), arttitle, NA), 
-        abstract = ifelse(!is.null(artabstr), 
+        
+        abstract = ifelse(!is.null(artabstr) && 
+                            length(artabstr)>0 && 
+                            !is.na(artabstr[[1]]), 
                           paste(artabstr, collapse = ' '), NA),
-        mesh_codes = ifelse(!is.null(mesh_trms$mesh_codes), 
+        mesh_codes = ifelse(!is.null(mesh_trms$mesh_codes) &&
+                              length(mesh_trms$mesh_codes) > 0 &&
+                              !is.na(mesh_trms$mesh_codes[[1]]), 
                             paste(mesh_trms$mesh_codes, collapse = '; '), NA),
-        mesh_terms = ifelse(!is.null(mesh_trms$mesh_terms), 
+        mesh_terms = ifelse(!is.null(mesh_trms$mesh_terms) &&
+                              length(mesh_trms$mesh_terms) > 0 &&
+                              !is.na(mesh_trms$mesh_terms[[1]]), 
                             paste(mesh_trms$mesh_terms, collapse = '; '), NA),
-        grant_ids = ifelse(!is.null(grantids), 
+        grant_ids = ifelse(!is.null(grantids) && 
+                             length(grantids) > 0 && 
+                             !is.na(grantids[[1]]), 
                            paste(grantids, collapse = '; '), NA), 
-        references = ifelse(!is.null(refes), 
+        references = ifelse(!is.null(refes) && 
+                              length(refes) > 0 && 
+                              !is.na(refes[[1]]), 
                             paste(refes, collapse = '; '), NA),
-        coi = ifelse(!is.null(artcoi), paste(artcoi, collapse = '; '), NA),
+        coi = ifelse(!is.null(artcoi) && 
+                       length(artcoi) > 0 && 
+                       !is.na(artcoi[[1]]), 
+                     paste(artcoi, collapse = '; '), NA),
         
         last_name = artauths$authors$lastname, 
         first_name = artauths$authors$forename,
@@ -3325,7 +3403,7 @@ epm_parse_record <- function(pubmedArticle,
 #' This argument must take one of the following
 #' values: `c("uilist", "medline", "xml")` and defaults to `"xml"`.
 #' @param api_key String, corresponding to the NCBI API token (if available). 
-#' NCBI token srings can be requested from NCBI. Record download will be 
+#' NCBI token strings can be requested from NCBI. Record download will be 
 #' faster if a valid NCBI token is used. This argument can be `NULL`. 
 #' @param write_to_file Logical of length 1. Shall raw records be written to 
 #' a file on the local machine. It defaults to `FALSE`.
@@ -3349,11 +3427,15 @@ epm_parse_record <- function(pubmedArticle,
 #' 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   x <- epm_query(query_string = 'Damiano Fantini[AU]')
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND "2018"[PDAT]')
 #'   x <- epm_fetch(x = x, format = 'uilist')
 #'   x
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' 
 #' @author 
@@ -3444,12 +3526,16 @@ epm_fetch <- function(x, format = 'xml',
 #' 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND 2018[PDAT]')
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND "2018"[PDAT]')
 #'   x <- epm_fetch(x = x, format = 'xml')
 #'   x <- epm_parse(x, include_abstract = FALSE, max_authors = 1)
-#'   getEPMData(x)
+#'   get_epm_data(x)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #'  
 #' 
 #' @author 
@@ -3524,8 +3610,11 @@ epm_parse <- function(x, max_authors = 10,
 #' 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND 2018[PDAT]')
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND "2018"[PDAT]')
 #'   x <- epm_fetch(x = x, format = 'xml', write_to_file = TRUE, 
 #'                  outfile_prefix = 'test', store_contents = FALSE)
 #'   y <- epm_import_xml('test_batch_01.txt')
@@ -3535,6 +3624,7 @@ epm_parse <- function(x, max_authors = 10,
 #'   print(paste0('Raw Record Num (read & rebuilt): ', 
 #'                getEPMMeta(y)$raw_record_num))
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #'  
 #' 

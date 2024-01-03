@@ -1,8 +1,8 @@
 
-#  easyPubMed, ver 3.0.1
+#  easyPubMed, ver 3.1.3
 #  Retrieve and Process Scientific Publication Records from Pubmed
 
-#  Copyright (C) 2023, Damiano Fantini
+#  Copyright (C) 2024, Damiano Fantini
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -97,33 +97,33 @@
 #' 
 #' 
 #' @examples
+#' ## Example 01: retrieve data in XML format, extract info, show
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   ## Example 01: retrieve data in XML format, extract info, show
-#'   my_query_string <- "Damiano Fantini[AU]"
+#'   my_query_string <- 'Damiano Fantini[AU] AND "2018"[PDAT]'
 #'   epm <- epm_query(my_query_string)
 #'   epm <- epm_fetch(epm)
-#'   epm <- epm_parse(epm)
-#'   processed_data <- getEPMData(epm)
+#'   epm <- epm_parse(epm, max_authors = 5, max_references = 10)
+#'   processed_data <- get_epm_data(epm)
 #'   utils::head(processed_data)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' \dontrun{
 #' ## Example 02: retrieve data in medline format
-#' try({
-#'   my_query_string <- "Damiano Fantini[AU]"
-#'   epm <- epm_query(my_query_string)
-#'   epm <- epm_fetch(epm, format = 'medline')
-#'   medline_data <- getEPMRaw(epm)
-#'   first_record <- medline_data[[1]] 
-#'   cat(first_record, sep = '\n')
-#' }, silent = TRUE)
+#' my_query_string <- 'Damiano Fantini[AU] AND "2018"[PDAT]'
+#' epm <- epm_query(my_query_string)
+#' epm <- epm_fetch(epm, format = 'medline')
+#' medline_data <- get_epm_raw(epm)
+#' first_record <- medline_data[[1]] 
+#' cat(first_record, sep = '\n')
 #' 
 #' 
 #' ## Additional Examples: show easyPubMed Vignette
-#' try({
-#'   library(easyPubMed)
-#'   vignette("easyPubMed_demo")
-#' }, silent = TRUE)
+#' library(easyPubMed)
+#' vignette("easyPubMed_demo")
 #' 
 #' }
 #' 

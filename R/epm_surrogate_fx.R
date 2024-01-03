@@ -1,8 +1,8 @@
 
-#  easyPubMed, ver 3.0.1
+#  easyPubMed, ver 3.1.3
 #  Retrieve and Process Scientific Publication Records from Pubmed
 
-#  Copyright (C) 2023, Damiano Fantini
+#  Copyright (C) 2024, Damiano Fantini
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -59,10 +59,14 @@
 #' 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   qry <- 'Damiano Fantini[AU]'
+#'   qry <- 'Damiano Fantini[AU] AND "2018"[PDAT]'
 #'   get_pubmed_ids(pubmed_query_string = qry)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' 
 #' 
@@ -114,7 +118,7 @@ get_pubmed_ids <- function(pubmed_query_string, api_key = NULL) {
 #' @param encoding String, the encoding of the records retrieved from Pubmed. 
 #' This argument is ignored and set to 'UTF-8'.
 #' @param api_key String, corresponding to the NCBI API token (if available). 
-#' NCBI token srings can be requested from NCBI. Record download will be 
+#' NCBI token strings can be requested from NCBI. Record download will be 
 #' faster if a valid NCBI token is used. This argument can be NULL. 
 #' @param verbose Logical, shall details about the 
 #' progress of the operation be printed to console.
@@ -142,21 +146,23 @@ get_pubmed_ids <- function(pubmed_query_string, api_key = NULL) {
 #'
 #' @examples
 #' ## Example 01: retrieve PubMed record Unique Identifiers (uilist)
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({ 
-#'   q <- 'Damiano Fantini[AU] AND 2018[PDAT]'
+#'   q <- 'Damiano Fantini[AU] AND "2018"[PDAT]'
 #'   x <- get_pubmed_ids(pubmed_query_string = q)
 #'   y <- fetch_pubmed_data(x, format = "uilist")
 #'   y
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' \dontrun{
 #' ## Example 02: retrieve data in XML format
-#' try({ 
-#'   q <- 'Damiano Fantini[AU] AND 2018[PDAT]'
-#'   x <- epm_query(query_string = q)
-#'   y <- fetch_pubmed_data(x, format = "xml")
-#'   y
-#' }, silent = TRUE)
+#' q <- 'Damiano Fantini[AU] AND "2018"[PDAT]'
+#' x <- epm_query(query_string = q)
+#' y <- fetch_pubmed_data(x, format = "xml")
+#' y
 #' }
 #' 
 #' @importFrom utils head
@@ -282,6 +288,9 @@ fetch_pubmed_data <- function (pubmed_id_list,
 #' @references \url{https://www.data-pulse.com/dev_site/easypubmed/}
 #'
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
 #'   q0 <- 'Damiano Fantini[AU] AND "2018"[PDAT]'
 #'   q1 <- easyPubMed::get_pubmed_ids(pubmed_query_string = q0)
@@ -289,7 +298,7 @@ fetch_pubmed_data <- function (pubmed_id_list,
 #'   df <- table_articles_byAuth(q2, included_authors = 'first')
 #'   df[, c('pmid', 'lastname', 'jabbrv', 'year', 'month', 'day')]
 #' }, silent = TRUE)
-#' 
+#' setTimeLimit(elapsed = Inf)
 #' 
 #' 
 #' @importFrom rlang warn

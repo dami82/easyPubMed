@@ -20,9 +20,11 @@ vignette: >
 
 ```{r include=FALSE, echo=FALSE, results='hide', eval=TRUE}
 # Declarations
-curr_epm_ver <- '3.01'
-stab_epm_ver <- '2.22'
-devl_epm_ver <- '3.01'
+base_epm_ver <- '3.0'
+stab_epm_ver <- '3.1.3'
+this_epm_ver <- '3.1.3'
+
+
 
 # pre-load libs and data
 library(easyPubMed)
@@ -50,7 +52,7 @@ epm_xmpl_07 <- fabricate_epm_obj(blca_2018$demo_data_05)
 ```
 
 
-*PubMed* is an online repository of references and abstracts of publications in the fields of medicine and life sciences. *Pubmed* is a free resource that is developed and maintained by the National Center for Biotechnology Information (NCBI), at the U.S. National Library of Medicine (NLM), located at the National Institutes of Health (NIH). *PubMed* homepage is located at the following URL: [https://www.ncbi.nlm.nih.gov/pubmed/](https://www.ncbi.nlm.nih.gov/pubmed/). Other than its web portal, *PubMed* can be programmatically queried via the NCBI Entrez E-utilities interface.
+*PubMed* is an online repository of references and abstracts of publications in the fields of medicine and life sciences. *Pubmed* is a free resource that is developed and maintained by the National Center for Biotechnology Information (NCBI), at the U.S. National Library of Medicine (NLM), located at the National Institutes of Health (NIH). *PubMed* homepage is located at the following URL: [https://pubmed.ncbi.nlm.nih.gov/](https://pubmed.ncbi.nlm.nih.gov/). Other than its web portal, *PubMed* can be programmatically queried via the NCBI Entrez E-utilities interface.
 
 **easyPubMed** is an **open-source R interface to the Entrez Programming Utilities** aimed at allowing programmatic access to *PubMed* in the R environment. The package is suitable for downloading large number of records, and includes a collection of functions to perform basic processing of the *Entrez/PubMed* query responses. The library supports either *XML* or *TXT* ("medline") format. 
 This vignette covers the key functionalities of `easyPubMed` and provides some informative examples to get started.
@@ -62,7 +64,7 @@ This vignette covers the key functionalities of `easyPubMed` and provides some i
 
 ## Notes
 
-- This vignette covers `easyPubMed` version `r curr_epm_ver`. Compatibility with previous versions of `easyPubMed` is NOT implied nor guaranteed.
+- This vignette covers `easyPubMed` version `r this_epm_ver`. Compatibility with previous versions of `easyPubMed` is NOT implied nor guaranteed.
 
 - `easyPubMed` is an open-source software, under the GPL-3 license and comes with ABSOLUTELY NO WARRANTY. For more questions about the GPL-3 license terms, see [www.gnu.org/licenses](https://www.gnu.org/licenses/gpl-3.0.html).
 
@@ -75,7 +77,7 @@ This vignette covers the key functionalities of `easyPubMed` and provides some i
 
 
 
-# New features of easyPubMed version `r curr_epm_ver`
+# New features of easyPubMed version `r this_epm_ver`
 
 
 - **Simplified Pipeline**. The process of retrieving and analyzing Pubmed records 
@@ -121,7 +123,7 @@ includes one row per record.
 
 ### Stable Version
 
-To install the stable version (`r stab_epm_ver`) of `easyPubMed` from CRAN, you can run the following line of code:
+To install the stable version (`r stab_epm_ver`) of `easyPubMed` from CRAN, you can run the following line of code.
 
 ```{r inst__0001, include = TRUE, echo = TRUE, eval = FALSE}
 install.packages("easyPubMed")
@@ -129,9 +131,9 @@ install.packages("easyPubMed")
 
 -----
 
-### Dev Version
+### Dev Version(s)
 
-A *dev* version (`r devl_epm_ver`) of the library is hosted on *GitHub*. If you are interested in trying it out, you can install it using the `devtools` library as follows.
+*Dev* versions of the library are hosted on *GitHub*. If interested, you can install the latest *dev* version using the `devtools` library.
 
 ```{r inst___04, include = TRUE, echo = TRUE, eval = FALSE}
 devtools::install_github("dami82/easyPubMed")
@@ -144,7 +146,7 @@ devtools::install_github("dami82/easyPubMed")
 
 # Tutorial
 
-The first section of the tutorial covers how to use `easyPubMed` (version `r curr_epm_ver`) for querying *PubMed*, retrieving records from the *Entrez History Server*, and analyzing results. The second part of the tutorial provides additional examples and information about special cases and advanced operations. 
+The first section of the tutorial covers how to use `easyPubMed` (version `r base_epm_ver` or later) for querying *PubMed*, retrieving records from the *Entrez History Server*, and analyzing results. The second part of the tutorial provides additional examples and information about special cases and advanced operations. 
 
 
 -----
@@ -442,7 +444,7 @@ cat(head(first_record, n=20), sep = '\n')
 
 ### Queries Returning Large Numbers of Records
 
-In `easyPubMed` (version `r curr_epm_ver` and later) there are no dedicated functions for downloading large numbers of records. Large query jobs are still carried out via the  `epm_query()` and `epm_fetch()` functions, which will attempt to split a single query into a list of manageable sub-jobs. An example is shown below. Briefly, we performed a query that returned n=20,825 records. The job was automatically split in n=4 sub-jobs, records were downloaded and parsed. The whole operation took about 3h 28m using a 2-vCPUs, 4Gb-memory machine running on Ubuntu 20.04 (*i.e.*, about 0.6s per record).	  
+In `easyPubMed` (version `r base_epm_ver` or later) there are no dedicated functions for downloading large numbers of records. Large query jobs are still carried out via the  `epm_query()` and `epm_fetch()` functions, which will attempt to split a single query into a list of manageable sub-jobs. An example is shown below. Briefly, we performed a query that returned n=20,825 records. The job was automatically split in n=4 sub-jobs, records were downloaded and parsed. The whole operation took about 3h 28m using a 2-vCPUs, 4Gb-memory machine running on Ubuntu 20.04 (*i.e.*, about 0.6s per record).	  
 
 
 ```{r eval=FALSE, echo=TRUE, include=TRUE}
@@ -474,7 +476,7 @@ epm_xmpl_04
 
 ### Save Raw Records Locally
 
-Unlike previous versions of `easyPubMed`, there are no dedicated functions to write PubMed records to a local disk. Starting from `easyPubMed` version `r curr_epm_ver`, this operation is performed by tuning the arguments of the `epm_fetch()` function and by setting the `write_to_file` to TRUE. 
+Unlike previous versions of `easyPubMed`, there are no dedicated functions to write PubMed records to a local disk. Starting from `easyPubMed` version `r base_epm_ver`, this operation is performed by tuning the arguments of the `epm_fetch()` function and by setting the `write_to_file` to TRUE. 
 
 
 **Write Files to the Local Disc.**
@@ -550,14 +552,14 @@ epm_xmpl_06
 
 ### Alternative Approaches for Record Parsing
 
-As we outlined above, information can be extracted from raw records ("xml" format) via the `epm_parse()` function. Results (`data.frame`) are stored in the same `easyPubMed` object (`data` slot) and can be requested via the `getEPMData()` method. Users can adjust the way information are extracted and formatted from PubMed records by tweaking the `epm_parse()` function arguments. The most important arguments are discussed below. 
+As we outlined above, information can be extracted from raw records ("xml" format) via the `epm_parse()` function. Results (`data.frame`) are stored in the same `easyPubMed` object (`data` slot) and can be requested via the `get_epm_data()` function. Users can adjust the way information are extracted and formatted from PubMed records by tweaking the `epm_parse()` function arguments. The most important arguments are discussed below. 
 
 
 **Compact vs. extended output**.
 
-A new feature of `easyPubMed` (ver. `r curr_epm_ver` or later) is the capacity of tuning the author information extraction process. The `compact_output` and `max_authors` arguments can be adjusted to get the desired behavior. 
+A new feature of `easyPubMed` (version `r base_epm_ver` or later) is the capacity of tuning the author information extraction process. The `compact_output` and `max_authors` arguments can be adjusted to get the desired behavior. 
 
-- `compact_output`: logical (defaults to `TRUE`). Author names are returned in a compact format (*i.e.*, author names are collapsed together) when this argument is set to `TRUE`, and each row in the final data.frame corresponds to a PubMed record. If `FALSE`, each row corresponds to a single author of the publication and the record-specific data are recycled for all included authors (legacy approach, this is similar to the typical output of the corresponding function in `easyPubMed` ver. *2.30* and earlier). When `compact_output` is set to `FALSE`, the processed data row number is typically bigger than the number or raw records that were retrieved. The behavior managed via the `compact_output` argument is a new feature of `easyPubMed` version *`r curr_epm_ver`* or later. 
+- `compact_output`: logical (defaults to `TRUE`). Author names are returned in a compact format (*i.e.*, author names are collapsed together) when this argument is set to `TRUE`, and each row in the final data.frame corresponds to a PubMed record. If `FALSE`, each row corresponds to a single author of the publication and the record-specific data are recycled for all included authors (legacy approach, this is similar to the typical output of the corresponding function in `easyPubMed` ver. *2.30* and earlier). When `compact_output` is set to `FALSE`, the processed data row number is typically bigger than the number or raw records that were retrieved. The behavior managed via the `compact_output` argument is a new feature of `easyPubMed` version *`r base_epm_ver`* or later. 
 
 - `max_authors`: numeric, maximum number of authors to retrieve. If this is set to -1, only the last author is extracted. If this is set to 1, only the first author is returned. If this is set to 2, the first and the last authors are extracted. If this is set to any other positive number (i), up to the leading (i-1) authors are retrieved together with the last author. If this is set to a number larger than the number of authors in a record, all authors are returned. Note that at least 1 author has to be retrieved, therefore a value of 0 is not accepted (coerced to -1).
 
@@ -567,7 +569,7 @@ A new feature of `easyPubMed` (ver. `r curr_epm_ver` or later) is the capacity o
 
 **Citations**.
 
-The `epm_parse()` function can now extract citation information (if available). This feature was introduced in `easyPubMed` version *`r curr_epm_ver`*. The `max_references` and `ref_id_type` arguments can be adjusted to obtain information in the desired format. 
+The `epm_parse()` function can now extract citation information (if available). This feature was introduced in `easyPubMed` version *`r base_epm_ver`*. The `max_references` and `ref_id_type` arguments can be adjusted to obtain information in the desired format. 
 
 - `max_references`: numeric, maximum number of references to return (from each PubMed record). 
 
@@ -622,7 +624,7 @@ head(epm_data[, cols_of_int])
 
 # Software Maintenance and Life Cycle
 
-- The new pipeline proposed in `easyPubMed` version `r curr_epm_ver` replaces the old pipeline based on the following functions: `get_pubmed_ids()`, `fetch_pubmed_data()`, and `table_articles_byAuth()`. We are planning to phase out these functions by the end of 2024.
+- The new pipeline proposed in `easyPubMed` version `r this_epm_ver` replaces the old pipeline based on the following functions: `get_pubmed_ids()`, `fetch_pubmed_data()`, and `table_articles_byAuth()`. We are planning to phase out these functions by the end of 2024.
 
 - The current version of `easyPubMed` still includes revised versions of the `get_pubmed_ids()`, `fetch_pubmed_data()`, and `table_articles_byAuth()` for legacy purposes. The new versions of these functions should return output that is compatible with old versions of `easyPubMed` (with the exception of `get_pubmed_ids()`). Other functions (*e.g.*, `batch_pubmed_download ()` or `fetch_all_pubmed_ids()`) have been discontinued and/or replaced as outlined below.
 

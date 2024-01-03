@@ -1,8 +1,8 @@
 
-#  easyPubMed, ver 3.03
+#  easyPubMed, ver 3.1.3
 #  Retrieve and Process Scientific Publication Records from Pubmed
 
-#  Copyright (C) 2023, Damiano Fantini
+#  Copyright (C) 2024, Damiano Fantini
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -660,6 +660,7 @@ setMethod("fetchEPMData",
             # init collectors
             out_recos <- list()
             out_pmids <- list()
+            book_pmids <- list()
             
             for (i in seq(1, nrow(job_list), by = 1)) {
               
@@ -678,7 +679,7 @@ setMethod("fetchEPMData",
                                            format = my_params$format, 
                                            encoding = my_params$encoding) 
                 if (is.null(tmp_i)) {
-                  tmp_i <- tmp_i + 1
+                  cnt_i <- cnt_i + 1
                   Sys.sleep(1)
                 }
               }
@@ -686,6 +687,9 @@ setMethod("fetchEPMData",
                 warning(paste0("Batch ", i, ": no records could be retrieved!"))
                 
               } else {
+                
+                cnt_i <- 0
+                
                 if (is.list(tmp_i) && length(tmp_i) > 0) {
                   
                   # Parse PMIDs
@@ -695,6 +699,23 @@ setMethod("fetchEPMData",
                   } else {
                     labs_i <- tmp_i
                   }
+                  
+                  # try detecting Book Chapters
+                  if (my_params$format == 'xml') {
+                    tryCatch({
+                      book_lab_i <- grepl('<BookDocument', 
+                                          lapply(tmp_i, substr, 
+                                                 start = 1, stop = 30))
+                      if (sum(book_lab_i) > 0) {
+                        book_pmids[[length(book_pmids) + 1]] <-
+                          do.call(c, labs_i[book_lab_i])
+                      }
+                      
+                    }, error = function(e) { NULL })
+                  } else {
+                    book_pmids[[1]] <- NA
+                  }
+                  
                   
                   # Assign PMIDs as element names
                   tryCatch({
@@ -750,7 +771,10 @@ setMethod("fetchEPMData",
             my_meta$raw_date <- format(Sys.time(), tz = 'GMT')
             
             # Update misc
+            book_pmids <- tryCatch({do.call(c, book_pmids)}, 
+                                   error = function(e) { NA })
             my_misc$fetch_epm_params <- my_params
+            my_misc$book_chapter_pmids <- book_pmids
             
             # update contents
             x <- setEPMMeta(x, my_meta)
@@ -790,7 +814,7 @@ setGeneric("parseEPMData", function(x, params) {
 #' @rdname parseEPMData
 #' @aliases parseEPMData,easyPubMed,list-method
 setMethod("parseEPMData", signature(x = "easyPubMed", 
-                                      params = "list"),
+                                    params = "list"),
           function(x, params) {
             
             # Should keal the job if params are
@@ -841,6 +865,7 @@ setMethod("parseEPMData", signature(x = "easyPubMed",
             
             # collector (init) and loop
             y <- list()
+
             for (i in seq_len(length(x_raw))) {
               
               # message
@@ -850,6 +875,7 @@ setMethod("parseEPMData", signature(x = "easyPubMed",
               
               # parse
               y[[length(y) + 1 ]] <- tryCatch({
+                
                 epm_parse_record(x_raw[[i]], 
                                  max_authors = my_params$max_authors, 
                                  autofill_address = my_params$autofill_address, 
@@ -871,10 +897,17 @@ setMethod("parseEPMData", signature(x = "easyPubMed",
             
             # collapse
             tot_processed_n <- length(y)
-            y <- tryCatch({do.call(rbind, y)}, error = function(e) { NULL })
-            stopifnot(rownames(y) > 0)
-            rownames(y) <- NULL
+            y <- tryCatch({
+              ytmp <- do.call(rbind, y)
+              ytmp <- ytmp[!is.na(ytmp[, 1]), ]
+              rownames(ytmp) <- NULL
+              ytmp
+            }, error = function(e) { data.frame() })
             
+            if (nrow(y) < 1 && my_params$verbose) {
+              message('None of these PubMed records could be parsed.')
+            }
+
             # update misc & meta
             my_misc$parse_epm_params <- my_params
             
@@ -909,10 +942,14 @@ setMethod("parseEPMData", signature(x = "easyPubMed",
 #' @param x An `easyPubMed` object. 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive. 
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND 2018[PDAT]')
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND "2018"[PDAT]')
 #'   get_epm_meta(x)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #'  
 #' @author 
@@ -944,11 +981,15 @@ get_epm_meta <- function(x) {
 #' @param x An `easyPubMed` object. 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND 2018[PDAT]')
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND "2018"[PDAT]')
 #'   x <- epm_fetch(x)
 #'   get_epm_raw(x)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #'  
 #' @author 
@@ -981,12 +1022,16 @@ get_epm_raw <- function(x) {
 #' @param x An `easyPubMed` object. 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND 2018[PDAT]')
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND "2018"[PDAT]')
 #'   x <- epm_fetch(x)
 #'   x <- epm_parse(x, max_references = 5, max_authors = 5)
 #'   get_epm_data(x)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #'  
 #' @author 
@@ -1019,11 +1064,15 @@ get_epm_data <- function(x) {
 #' @param x An `easyPubMed` object. 
 #' 
 #' @examples 
+#' # Note: a time limit can be set in order to kill the operation when/if 
+#' # the NCBI/Entrez server becomes unresponsive.
+#' setTimeLimit(elapsed = 4.9)
 #' try({
-#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND 2018[PDAT]')
+#'   x <- epm_query(query_string = 'Damiano Fantini[AU] AND "2018"[PDAT]')
 #'   x <- epm_fetch(x)
 #'   get_epm_uilist(x)
 #' }, silent = TRUE)
+#' setTimeLimit(elapsed = Inf)
 #' 
 #'  
 #' @author 
